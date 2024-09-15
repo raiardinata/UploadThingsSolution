@@ -1,0 +1,35 @@
+﻿@model IEnumerable<UploadThings.Models.Transaction>
+
+@{
+    ViewData["Title"] = "Transaction";
+}
+
+<h2>Transaction</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>User Name</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Unit Price</th>
+            <th>Date Input</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.username</td>
+                <td>@product.productname</td>
+                <td>@product.quantity</td>
+                <td>@product.totalprice</td>
+                <td>@product.unitprice</td>
+                <td>@product.date</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Add New Product</a>

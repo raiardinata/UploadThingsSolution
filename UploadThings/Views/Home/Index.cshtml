@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.Message
+    </div>
+}
+
+<div class="text-center">
+    <h1 class="display-4">Database Check Completed</h1>
+    <p>The necessary databases have been checked and created (if not already existing).</p>
+</div>
