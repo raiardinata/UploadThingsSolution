@@ -1,8 +1,9 @@
 using Grpc.Core;
+using UploadThingsGrpcService.Greeter;
 
-namespace UploadThingsGrpcService.Services
+namespace UploadThingsGrpcService.Presentation.Services
 {
-    public class GreeterService : Greeter.GreeterBase
+    public class GreeterService : Greeter.Greeter.GreeterBase
     {
         private readonly ILogger<GreeterService> _logger;
         public GreeterService(ILogger<GreeterService> logger)

@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "UploadThingsGrpcService.UserService";
+
+service UserService {
+	// Create
+	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+		option (google.api.http) = {
+			post : "/v1/User",
+			body : "*"
+		};
+	}
+
+	// Read Single
+	rpc ReadUser(ReadUserRequest) returns (ReadUserResponse) {
+		option (google.api.http) = {
+			patch : "/v1/User/{id}",
+			body : "*"
+		};
+	}
+
+	// Read List
+	rpc ListUser(GetAllRequest) returns (GetAllResponse) {
+		option (google.api.http) = {
+			get : "/v1/User"
+		};
+	}
+
+	// Update
+	rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+		option (google.api.http) = {
+			put : "/v1/User",
+			body : "*"
+		};
+	}
+
+	// Delete
+	rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+		option (google.api.http) = {
+			delete : "/v1/User/{id}"
+		};
+	}
+}
+
+message CreateUserRequest {
+	string name = 1;
+	string email = 2;
+}
+message CreateUserResponse {
+	int32 id = 1;
+}
+
+message ReadUserRequest {
+	int32 id = 1;
+	google.protobuf.FieldMask data_that_needed = 2;
+}
+message ReadUserResponse {
+	int32 id = 1;
+	string name = 2;
+	string email = 3;
+}
+
+message GetAllRequest{}
+message GetAllResponse{
+	repeated ReadUserResponse user_data = 1;
+}
+
+message UpdateUserRequest {
+	int32 id = 1;
+	string name = 2;
+	string email = 3;
+}
+message UpdateUserResponse {
+	int32 id = 1;
+}
+
+message DeleteUserRequest {
+	int32 id = 1;
+}
+message DeleteUserResponse {
+	int32 id = 1;
+}

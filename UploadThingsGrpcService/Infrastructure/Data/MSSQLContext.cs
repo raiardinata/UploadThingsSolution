@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UploadThings.Models;
-using UploadThingsGrpcService.Models;
+using UploadThingsGrpcService.Domain.Entities;
 
-namespace UploadThingsGrpcService.Data
+namespace UploadThingsGrpcService.Infrastructure.Data
 {
     public class MSSQLContext : DbContext
     {
         public MSSQLContext(DbContextOptions<MSSQLContext> options) : base(options) { }
+        public DbSet<User> Users => Set<User>();
         public DbSet<ToDoItem> ToDoItems => Set<ToDoItem>();
-        public DbSet<User> Users { get; set; }
     }
 }

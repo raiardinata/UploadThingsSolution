@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/api/annotations.proto";
 
-option csharp_namespace = "UploadThingsGrpcService";
+option csharp_namespace = "UploadThingsGrpcService.Greeter";
 
 package greet;
 

@@ -8,12 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Protos\todo.proto" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
-    <Protobuf Include="Protos\todo.proto" GrpcServices="Server" />
+    <None Remove="Presentation\Protos\greet.proto" />
+    <None Remove="Presentation\Protos\todo.proto" />
+    <None Remove="Presentation\Protos\user.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +32,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UploadThings\UploadThings.csproj" />
+    <Folder Include="Application\Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Presentation\Protos\greet.proto" GrpcServices="Server" />
+    <Protobuf Include="Presentation\Protos\todo.proto" GrpcServices="Server" />
+    <Protobuf Include="Presentation\Protos\user.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

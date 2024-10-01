@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using UploadThingsGrpcService.Data;
+using UploadThingsGrpcService.Infrastructure.Data;
 
 #nullable disable
 
 namespace UploadThingsGrpcService.Migrations
 {
     [DbContext(typeof(MSSQLContext))]
-    [Migration("20240918082423_InitialMigration")]
+    [Migration("20240930094901_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace UploadThingsGrpcService.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("UploadThingsGrpcService.Models.ToDoItem", b =>
+            modelBuilder.Entity("UploadThingsGrpcService.Domain.Entities.ToDoItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -44,6 +44,27 @@ namespace UploadThingsGrpcService.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ToDoItems");
+                });
+
+            modelBuilder.Entity("UploadThingsGrpcService.Domain.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 #pragma warning restore 612, 618
         }
