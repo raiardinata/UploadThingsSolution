@@ -72,7 +72,7 @@ namespace UploadThingsGrpcService.Presentation.Services
                 });
             }
 
-            throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
+            throw new RpcException(new Status(StatusCode.NotFound, $"Failed to read User with id {request.Id}"));
         }
 
         public override async Task<GetAllResponse> ListUser(GetAllRequest request, ServerCallContext context)
