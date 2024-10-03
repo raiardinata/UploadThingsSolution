@@ -28,3 +28,5 @@ the type of objects that will be created.
 I use this architecture so I could reuse a lot of recurring function without writing it again, use it globally, and open to extention which means it scalable.
 
 It has some gRpc and RESTFul. It can goes from client side to server side using RESTFul or from service to service using gRpc (example in Service folder at ToDo Service and Greet Service).
+
+All of the test is inside UploadThingsTestProject.
