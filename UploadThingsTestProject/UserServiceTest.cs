@@ -8,16 +8,16 @@ using UploadThingsGrpcService.Domain.Interfaces;
 using UploadThingsGrpcService.Infrastructure.Data;
 using UploadThingsGrpcService.Infrastructure.Repositories;
 using UploadThingsGrpcService.Presentation.Services;
-using UploadThingsGrpcService.UserService;
+using UploadThingsGrpcService.UserProto;
 
 namespace UploadThingsTestProject
 {
     class UserServiceTest
     {
-        private MSSQLContext _MSSQLContext;
-        private IGeneralRepository<User> _userRepository;
-        private UserServices _userServices;
+        private IUserRepository _iUserRepository;
         private IConfiguration _configuration;
+        private MSSQLContext _MSSQLContext;
+        private UserServices _userServices;
 
         [SetUp]
         public void SetUp()
@@ -34,8 +34,8 @@ namespace UploadThingsTestProject
                 .Options;
 
             _MSSQLContext = new MSSQLContext(options);
-            _userRepository = new UserRepository(_MSSQLContext);
-            _userServices = new UserServices(_userRepository);
+            _iUserRepository = new UserRepository(_MSSQLContext);
+            _userServices = new UserServices(_iUserRepository);
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace UploadThingsTestProject
         {
             // Arrange
             var request = new ReadUserRequest { Id = 6, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
-            var responseExpected = new ReadUserResponse { Id = 6, Email = "amet officia Excepteur", Name = "ipsum@gmail.com" };
+            var responseExpected = new ReadUserResponse { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" };
 
             // Act
             var response = await _userServices.ReadUser(request, It.IsAny<ServerCallContext>());
@@ -56,13 +56,13 @@ namespace UploadThingsTestProject
         public async Task ReadAllUser_ShouldReturnAllUserData()
         {
             // Arrange
-            GetAllRequest request = new GetAllRequest { };
-            GetAllResponse responseExpected = new GetAllResponse
+            GetAllRequest request = new();
+            GetAllResponse responseExpected = new()
             {
                 UserData = {
                     new ReadUserResponse { Id = 1, Name = "Rai Ardinata", Email = "raiardinata@gmail.com" },
-                    new ReadUserResponse { Id = 3, Name = "Abdul Somat", Email = "" },
-                    new ReadUserResponse { Id = 6, Name = "ipsum@gmail.com", Email = "amet officia Excepteur" },
+                    new ReadUserResponse { Id = 3, Name = "Abdul Somat", Email = "abdulsomat@gmail.com" },
+                    new ReadUserResponse { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" },
                 }
             };
 
@@ -76,11 +76,23 @@ namespace UploadThingsTestProject
         [Test]
         public async Task CreateUserandDeleteUser_ShouldCreateUsertoDatabaseThenDeleteUser()
         {
+            int id = 0;
+            // Get latest id
+            User toDoItemObject = await _MSSQLContext.Set<User>().OrderByDescending(ToDoItems => ToDoItems.Id).FirstOrDefaultAsync() ?? new User();
+            if (toDoItemObject == null)
+            {
+                Assert.Fail("");
+            }
+            else
+            {
+                // C# cannot check we already make sure it's not null eventhough there is toDoItemObject == null, is there a workaround for this?
+                id = (int)toDoItemObject.Id + 1;
+            }
             // Arrange
-            CreateUserRequest requestCreateUser = new CreateUserRequest { Name = "Kera Sakti", Email = "monkeyking@gmail.com" };
-            // The Id will depend of the latest User Data in the Database. Make sure you update the number based on the latest Id.
-            ReadUserRequest requestReadUser = new ReadUserRequest { Id = 10, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
-            ReadUserResponse responseExpected = new ReadUserResponse { Id = 10, Name = "Kera Sakti", Email = "monkeyking@gmail.com" };
+            CreateUserRequest requestCreateUser = new() { Name = "Kera Sakti", Email = "monkeyking@gmail.com" };
+            // The Id will depend of the latest User Data in the Database.
+            ReadUserRequest requestReadUser = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
+            ReadUserResponse responseExpected = new() { Id = id, Name = "Kera Sakti", Email = "monkeyking@gmail.com" };
 
             // Act 1 Create User Then Read It
             CreateUserResponse responseCreateUser = await _userServices.CreateUser(requestCreateUser, It.IsAny<ServerCallContext>());
@@ -89,9 +101,9 @@ namespace UploadThingsTestProject
             Assert.That(responseReadUser, Is.EqualTo(responseExpected));
 
             // Act 2 Delete User
-            DeleteUserResponse responseDelete = await _userServices.DeleteUser(new DeleteUserRequest { Id = 10 }, It.IsAny<ServerCallContext>());
+            DeleteUserResponse responseDelete = await _userServices.DeleteUser(new DeleteUserRequest { Id = id }, It.IsAny<ServerCallContext>());
             // Assert Act 2
-            Assert.That(responseDelete, Is.EqualTo(new DeleteUserResponse { Id = 10 }));
+            Assert.That(responseDelete, Is.EqualTo(new DeleteUserResponse { Id = id }));
 
         }
 
@@ -99,13 +111,13 @@ namespace UploadThingsTestProject
         public async Task UpdateUser_ShouldUpdateUserData()
         {
             // Arrange Update User
-            UpdateUserRequest requestUpdateUser = new UpdateUserRequest { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" };
+            UpdateUserRequest requestUpdateUser = new() { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" };
             // Arrange Read User
-            ReadUserRequest requestReadUser = new ReadUserRequest { Id = 6, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
-            ReadUserResponse responseExpected = new ReadUserResponse { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" };
+            ReadUserRequest requestReadUser = new() { Id = 6, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
+            ReadUserResponse responseExpected = new() { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" };
 
             // Act Update User
-            UpdateUserResponse responseUpdateUser = await _userServices.UpdateUser(requestUpdateUser, It.IsAny<ServerCallContext>());
+            await _userServices.UpdateUser(requestUpdateUser, It.IsAny<ServerCallContext>());
             // Act Read User
             ReadUserResponse responseReadUser = await _userServices.ReadUser(requestReadUser, It.IsAny<ServerCallContext>());
 

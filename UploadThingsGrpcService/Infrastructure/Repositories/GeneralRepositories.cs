@@ -5,15 +5,10 @@ using UploadThingsGrpcService.Infrastructure.Data;
 namespace UploadThingsGrpcService.Infrastructure.Repositories
 {
     // repository for basic CRUD
-    public class GeneralRepositories<T> : IGeneralRepository<T> where T : class, IEntity
+    public class GeneralRepositories<T>(MSSQLContext context) : IGeneralRepository<T> where T : class, IEntity
     {
-        private readonly MSSQLContext _context;
-        private readonly DbSet<T> _dbSet;
-        public GeneralRepositories(MSSQLContext context)
-        {
-            _context = context;
-            _dbSet = context.Set<T>();
-        }
+        private readonly MSSQLContext _context = context;
+        private readonly DbSet<T> _dbSet = context.Set<T>();
 
         public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
         public async Task<T?> GetByIdAsync(int id) => await _dbSet.FirstOrDefaultAsync(entity => entity.Id == id);

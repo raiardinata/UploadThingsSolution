@@ -3,11 +3,11 @@ syntax = "proto3";
 import "google/protobuf/field_mask.proto";
 import "google/api/annotations.proto";
 
-option csharp_namespace = "UploadThingsGrpcServic.ToDoService";
+option csharp_namespace = "UploadThingsGrpcService.ToDoProto";
 
 package todoit;
 
-service TodoIt {
+service ToDoService {
 	// Create
 	rpc CreateToDo(CreateTodoRequest) returns (CreateTodoResponse) {
 		option (google.api.http) = {
@@ -56,18 +56,15 @@ message CreateTodoResponse {
 	int32 id = 1;
 }
 
-message ReadFullDataToDo {
-	int32 id = 1;
-	string title = 2;
-	string description = 3;
-	string to_do_status = 4;
-}
 message ReadToDoRequest {
 	int32 id = 1;
 	google.protobuf.FieldMask data_that_needed = 2;
 }
 message ReadToDoResponse {
-	ReadFullDataToDo todo_data = 1;
+	int32 id = 1;
+	string title = 2;
+	string description = 3;
+	string to_do_status = 4;
 }
 
 message GetAllRequest{}

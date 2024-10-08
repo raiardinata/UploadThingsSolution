@@ -4,9 +4,9 @@ using UploadThingsGrpcService.Infrastructure.Data;
 
 namespace UploadThingsGrpcService.Infrastructure.Repositories
 {
-    public class ToDoRepositrory : GeneralRepositories<ToDoItem>, IToDoRepository
+    public class ToDoRepository : GeneralRepositories<ToDoItem>, IToDoRepository
     {
-        public ToDoRepositrory(MSSQLContext context) : base(context)
+        public ToDoRepository(MSSQLContext context) : base(context)
         {
         }
 

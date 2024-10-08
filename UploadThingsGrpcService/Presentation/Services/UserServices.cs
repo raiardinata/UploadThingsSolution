@@ -2,11 +2,11 @@
 using Grpc.Core;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Domain.Interfaces;
-using UploadThingsGrpcService.UserService;
+using UploadThingsGrpcService.UserProto;
 
 namespace UploadThingsGrpcService.Presentation.Services
 {
-    public class UserServices : UserService.UserService.UserServiceBase
+    public class UserServices : UserService.UserServiceBase
     {
         private readonly IGeneralRepository<User> _userRepository;
         public UserServices(IGeneralRepository<User> userRepository)
@@ -81,17 +81,11 @@ namespace UploadThingsGrpcService.Presentation.Services
             var users = await _userRepository.GetAllAsync();
             foreach (var user in users)
             {
-                readFullDataUser = new ReadUserResponse
+                response.UserData.Add(new ReadUserResponse
                 {
                     Id = user.Id,
                     Name = user?.Name,
                     Email = user?.Email,
-                };
-                response.UserData.Add(new ReadUserResponse
-                {
-                    Id = readFullDataUser.Id,
-                    Email = readFullDataUser.Email,
-                    Name = readFullDataUser.Name,
                 });
             }
             return await Task.FromResult(response);

@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/field_mask.proto";
 import "google/api/annotations.proto";
 
-option csharp_namespace = "UploadThingsGrpcService.UserService";
+option csharp_namespace = "UploadThingsGrpcService.UserProto";
 
 service UserService {
 	// Create

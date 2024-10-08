@@ -1,23 +1,19 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using UploadThingsGrpcServic.ToDoService;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Domain.Interfaces;
+using UploadThingsGrpcService.ToDoProto;
 
 namespace UploadThingsGrpcService.Presentation.Services
 {
-    public class ToDoServices : TodoIt.TodoItBase
+    public class ToDoServices(IGeneralRepository<ToDoItem> toDoItemsRepository) : ToDoService.ToDoServiceBase
     {
-        private readonly IGeneralRepository<ToDoItem> _toDoItemsRepository;
-        public ToDoServices(IGeneralRepository<ToDoItem> toDoItemsRepository)
-        {
-            _toDoItemsRepository = toDoItemsRepository;
-        }
+        private readonly IGeneralRepository<ToDoItem> _toDoItemsRepository = toDoItemsRepository;
 
-        ReadFullDataToDo readfulldatatodo = new ReadFullDataToDo();
-        private ReadFullDataToDo ApplyFieldMask(ReadFullDataToDo fulldata, FieldMask fieldMask)
+        ReadToDoResponse readfulldatatodo = new();
+        private static ReadToDoResponse ApplyFieldMask(ReadToDoResponse fulldata, FieldMask fieldMask)
         {
-            var selectedData = new ReadFullDataToDo();
+            var selectedData = new ReadToDoResponse();
             foreach (var field in fieldMask.Paths)
             {
                 switch (field)
@@ -59,7 +55,7 @@ namespace UploadThingsGrpcService.Presentation.Services
             var toDoItem = await _toDoItemsRepository.GetByIdAsync(request.Id);
             if (toDoItem != null)
             {
-                readfulldatatodo = new ReadFullDataToDo
+                readfulldatatodo = new ReadToDoResponse
                 {
                     Id = toDoItem.Id,
                     Title = toDoItem?.Title,
@@ -70,7 +66,10 @@ namespace UploadThingsGrpcService.Presentation.Services
 
                 return await Task.FromResult(new ReadToDoResponse
                 {
-                    TodoData = selectedData,
+                    Id = selectedData.Id,
+                    Title = selectedData?.Title,
+                    Description = selectedData?.Description,
+                    ToDoStatus = selectedData?.ToDoStatus,
                 });
             }
 
@@ -83,16 +82,12 @@ namespace UploadThingsGrpcService.Presentation.Services
             var toDoItem = await _toDoItemsRepository.GetAllAsync();
             foreach (var todo in toDoItem)
             {
-                readfulldatatodo = new ReadFullDataToDo
+                response.TodoData.Add(new ReadToDoResponse
                 {
                     Id = todo.Id,
                     Title = todo?.Title,
                     Description = todo?.Description,
                     ToDoStatus = todo?.ToDoStatus,
-                };
-                response.TodoData.Add(new ReadToDoResponse
-                {
-                    TodoData = readfulldatatodo,
                 });
             }
             return await Task.FromResult(response);
@@ -103,9 +98,7 @@ namespace UploadThingsGrpcService.Presentation.Services
             if (request.Id <= 0 || request.Title == string.Empty || request.Title == string.Empty)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
 
-            var toDoItem = await _toDoItemsRepository.GetByIdAsync(request.Id);
-            if (toDoItem == null)
-                throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            ToDoItem toDoItem = await _toDoItemsRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             toDoItem.Title = request.Title;
             toDoItem.Description = request.Description;
@@ -120,9 +113,7 @@ namespace UploadThingsGrpcService.Presentation.Services
             if (request.Id <= 0)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
 
-            var toDoItem = await _toDoItemsRepository.GetByIdAsync(request.Id);
-            if (toDoItem == null)
-                throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            var toDoItem = await _toDoItemsRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             await _toDoItemsRepository.DeleteAsync(toDoItem.Id);
 

@@ -4,16 +4,10 @@ using UploadThings.UnitofWork;
 
 namespace UploadThings.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public ProductsController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
-        {
-            _unitOfWork = unitOfWork;
-            _webHostEnvironment = webHostEnvironment;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 
         [HttpGet]
         public async Task<IActionResult> Index()

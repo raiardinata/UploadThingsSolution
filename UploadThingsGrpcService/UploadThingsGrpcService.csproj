@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="Presentation\Protos\greet.proto" />
+    <None Remove="Presentation\Protos\product.proto" />
     <None Remove="Presentation\Protos\todo.proto" />
     <None Remove="Presentation\Protos\user.proto" />
   </ItemGroup>
@@ -24,19 +25,21 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     
-    <PackageReference Include="Grpc.AspNetCore" Version="2.65.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.66.0" />
     <PackageReference Include="microsoft.aspnetcore.grpc.jsontranscoding" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Images\" />
     <Folder Include="Application\Services\" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="Presentation\Protos\greet.proto" GrpcServices="Server" />
+    <Protobuf Include="Presentation\Protos\product.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\todo.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\user.proto" GrpcServices="Server" />
   </ItemGroup>
