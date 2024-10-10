@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Interfaces;
+using UploadThingsGrpcService.Infrastructure;
 using UploadThingsGrpcService.Infrastructure.Data;
-using UploadThingsGrpcService.Infrastructure.Repositories;
-using UploadThingsGrpcService.Presentation.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc().AddJsonTranscoding();
 builder.Services.AddDbContext<MSSQLContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQLToDoDatabaseConnection")));
 
-// Register your repository with the DI container
-builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GeneralRepositories<>));
+// Register your Unit of Work pattern.
+builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
 var app = builder.Build();
 

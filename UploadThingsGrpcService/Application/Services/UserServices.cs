@@ -4,20 +4,16 @@ using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Domain.Interfaces;
 using UploadThingsGrpcService.UserProto;
 
-namespace UploadThingsGrpcService.Presentation.Services
+namespace UploadThingsGrpcService.Application.Services
 {
-    public class UserServices : UserService.UserServiceBase
+    public class UserServices(IUnitOfWork unitofWorkRepository) : UserService.UserServiceBase
     {
-        private readonly IGeneralRepository<User> _userRepository;
-        public UserServices(IGeneralRepository<User> userRepository)
-        {
-            _userRepository = userRepository;
-        }
+        private readonly IUnitOfWork _unitofWorkRepository = unitofWorkRepository;
 
-        ReadUserResponse readFullDataUser = new ReadUserResponse();
+        ReadUserResponse readFullDataUser = new();
         public ReadUserResponse ApplyFieldMask(ReadUserResponse fullData, FieldMask fieldMask)
         {
-            var selectedData = new ReadUserResponse();
+            ReadUserResponse selectedData = new();
             foreach (var field in fieldMask.Paths)
             {
                 switch (field)
@@ -43,8 +39,8 @@ namespace UploadThingsGrpcService.Presentation.Services
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
             }
 
-            var user = new User { Name = request.Name, Email = request.Email };
-            await _userRepository.AddAsync(user);
+            User user = new() { Name = request.Name, Email = request.Email };
+            await _unitofWorkRepository.UserRepository.AddAsync(user);
             return await Task.FromResult(new CreateUserResponse { Id = user.Id });
         }
 
@@ -53,7 +49,7 @@ namespace UploadThingsGrpcService.Presentation.Services
             if (request.DataThatNeeded == null)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Resource index does not contain data."));
 
-            var user = await _userRepository.GetByIdAsync(request.Id);
+            var user = await _unitofWorkRepository.UserRepository.GetByIdAsync(request.Id);
             if (user != null)
             {
                 readFullDataUser = new ReadUserResponse
@@ -78,7 +74,7 @@ namespace UploadThingsGrpcService.Presentation.Services
         public override async Task<GetAllResponse> ListUser(GetAllRequest request, ServerCallContext context)
         {
             var response = new GetAllResponse();
-            var users = await _userRepository.GetAllAsync();
+            var users = await _unitofWorkRepository.UserRepository.GetAllAsync();
             foreach (var user in users)
             {
                 response.UserData.Add(new ReadUserResponse
@@ -96,14 +92,12 @@ namespace UploadThingsGrpcService.Presentation.Services
             if (request.Id <= 0 || request.Name == string.Empty || request.Email == string.Empty)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
 
-            var user = await _userRepository.GetByIdAsync(request.Id);
-            if (user == null)
-                throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            User user = await _unitofWorkRepository.UserRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             user.Name = request.Name;
             user.Email = request.Email;
 
-            await _userRepository.UpdateAsync(user);
+            await _unitofWorkRepository.UserRepository.UpdateAsync(user);
             return await Task.FromResult(new UpdateUserResponse { Id = request.Id });
         }
 
@@ -112,11 +106,9 @@ namespace UploadThingsGrpcService.Presentation.Services
             if (request.Id <= 0)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
 
-            var user = await _userRepository.GetByIdAsync(request.Id);
-            if (user == null)
-                throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            User user = await _unitofWorkRepository.UserRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}")); ;
 
-            await _userRepository.DeleteAsync(user.Id);
+            await _unitofWorkRepository.UserRepository.DeleteAsync(user.Id);
 
             return await Task.FromResult(new DeleteUserResponse { Id = request.Id });
         }

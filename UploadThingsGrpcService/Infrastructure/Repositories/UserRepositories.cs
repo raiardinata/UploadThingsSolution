@@ -4,11 +4,8 @@ using UploadThingsGrpcService.Infrastructure.Data;
 
 namespace UploadThingsGrpcService.Infrastructure.Repositories
 {
-    public class UserRepository : GeneralRepositories<User>, IUserRepository
+    public class UserRepository(MSSQLContext context) : GeneralRepositories<User>(context), IUserRepository
     {
-        public UserRepository(MSSQLContext context) : base(context)
-        {
-        }
 
         // You can also add custom methods specific to the User entity here if needed
     }

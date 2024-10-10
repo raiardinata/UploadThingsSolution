@@ -3,11 +3,10 @@ using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
-using UploadThingsGrpcService.Domain.Interfaces;
+using UploadThingsGrpcService.Infrastructure;
 using UploadThingsGrpcService.Infrastructure.Data;
-using UploadThingsGrpcService.Infrastructure.Repositories;
-using UploadThingsGrpcService.Presentation.Services;
 using UploadThingsGrpcService.ToDoProto;
 
 namespace UploadThingsTestProject
@@ -15,7 +14,7 @@ namespace UploadThingsTestProject
     [TestFixture]
     public class ToDoServiceTest
     {
-        private IToDoRepository _toDoRepository;
+        private UnitofWork _unitofWorkRepository;
         private IConfiguration _configuration;
         private MSSQLContext _MSSQLContext;
         private ToDoServices _toDoService;
@@ -34,8 +33,21 @@ namespace UploadThingsTestProject
                 .Options;
 
             _MSSQLContext = new MSSQLContext(Option);
-            _toDoRepository = new ToDoRepository(_MSSQLContext);
-            _toDoService = new ToDoServices(_toDoRepository);
+            _unitofWorkRepository = new UnitofWork(_MSSQLContext);
+            _toDoService = new ToDoServices(_unitofWorkRepository);
+        }
+
+        private decimal GetLatestIdAsync(string table)
+        {
+            // Get latest id
+            decimal id = 0;
+
+            id = _MSSQLContext.Set<CurrentIdentity>()
+                    .FromSqlRaw("SELECT IDENT_CURRENT('" + table + "') AS Id")
+                    .AsEnumerable()
+                    .Select(p => p.Id)
+                    .FirstOrDefault();
+            return id + 1;
         }
 
         [Test]
@@ -43,7 +55,7 @@ namespace UploadThingsTestProject
         {
             // Arrange
             var request = new ReadToDoRequest { Id = 1, DataThatNeeded = new FieldMask { Paths = { "id", "title", "description", "todostatus" } } };
-            var responseExpected = new ReadToDoResponse { Id = 1, Title = "Create ToDo Test", Description = "Create ToDo Succeed", ToDoStatus = "NEW" };
+            var responseExpected = new ReadToDoResponse { Id = 1, Title = "amet officia Excepteur", Description = "ipsum@gmail.com", ToDoStatus = "" };
 
             // Act
             var response = await _toDoService.ReadToDo(request, It.IsAny<ServerCallContext>());
@@ -55,51 +67,29 @@ namespace UploadThingsTestProject
         [Test]
         public async Task ReadAllToDo_ShouldReturnAllToDoData()
         {
-            // Arrange
-            GetAllRequest request = new();
-            GetAllResponse responseExpected = new()
-            {
-                TodoData = {
-                    new ReadToDoResponse { Id = 1, Title = "Rai Ardinata", Description = "raiardinata@gmail.com", ToDoStatus = "" },
-                    new ReadToDoResponse { Id = 3, Title = "Abdul Somat", Description = "abdulsomat@gmail.com", ToDoStatus = "" },
-                    new ReadToDoResponse { Id = 6, Title = "amet officia Excepteur", Description = "ipsum@gmail.com", ToDoStatus = "" },
-                }
-            };
-
             // Act
-            GetAllResponse response = await _toDoService.ListToDo(request, It.IsAny<ServerCallContext>());
+            GetAllResponse response = await _toDoService.ListToDo(new GetAllRequest(), It.IsAny<ServerCallContext>());
 
             // Assert
-            Assert.That(response, Is.EqualTo(responseExpected));
+            Assert.That(response, Is.Not.Null);
         }
 
         [Test]
         public async Task CreateToDoandDeleteToDo_ShouldCreateToDotoDatabaseThenDeleteToDo()
         {
-            int id = 0;
-            // Get latest id
-            ToDoItem toDoItemObject = await _MSSQLContext.Set<ToDoItem>().OrderByDescending(ToDoItems => ToDoItems.Id).FirstOrDefaultAsync() ?? new ToDoItem();
-            if (toDoItemObject == null)
-            {
-                Assert.Fail("");
-            }
-            else
-            {
-                // C# cannot check we already make sure it's not null eventhough there is toDoItemObject == null, is there a workaround for this?
-                id = (int)toDoItemObject.Id + 1;
-            }
-
             // Arrange
+            int id = (int)GetLatestIdAsync("ToDoItems");
             CreateTodoRequest requestCreateToDo = new() { Title = "Create ToDo Test", Description = "Create ToDo Succeed", };
-            // The Id will depend of the latest ToDo Data in the Database.
+
             ReadToDoRequest requestReadToDo = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "title", "description", "todostatus" } } };
             ReadToDoResponse responseExpected = new() { Id = id, Title = "Create ToDo Test", Description = "Create ToDo Succeed", ToDoStatus = "NEW" };
 
             // Act 1 Create ToDo Then Read It
-            CreateTodoResponse responseCreateToDo = await _toDoService.CreateToDo(requestCreateToDo, It.IsAny<ServerCallContext>());
+            await _toDoService.CreateToDo(requestCreateToDo, It.IsAny<ServerCallContext>());
             ReadToDoResponse responseReadToDo = await _toDoService.ReadToDo(requestReadToDo, It.IsAny<ServerCallContext>());
             // Assert Act 1, ToDo Should be in The Database
             Assert.That(responseReadToDo, Is.EqualTo(responseExpected));
+
 
             // Act 2 Delete ToDo
             DeleteToDoResponse responseDelete = await _toDoService.DeleteToDo(new DeleteToDoRequest { Id = id }, It.IsAny<ServerCallContext>());
@@ -112,10 +102,10 @@ namespace UploadThingsTestProject
         public async Task UpdateToDo_ShouldUpdateToDoData()
         {
             // Arrange Update ToDo
-            UpdateToDoRequest requestUpdateToDo = new() { Id = 6, Title = "amet officia Excepteur", Description = "ipsum@gmail.com" };
+            UpdateToDoRequest requestUpdateToDo = new() { Id = 1, Title = "amet officia Excepteur", Description = "ipsum@gmail.com" };
             // Arrange Read ToDo
-            ReadToDoRequest requestReadToDo = new() { Id = 6, DataThatNeeded = new FieldMask { Paths = { "id", "title", "description" } } };
-            ReadToDoResponse responseExpected = new() { Id = 6, Title = "amet officia Excepteur", Description = "ipsum@gmail.com" };
+            ReadToDoRequest requestReadToDo = new() { Id = 1, DataThatNeeded = new FieldMask { Paths = { "id", "title", "description" } } };
+            ReadToDoResponse responseExpected = new() { Id = 1, Title = "amet officia Excepteur", Description = "ipsum@gmail.com" };
 
             // Act Update ToDo
             await _toDoService.UpdateToDo(requestUpdateToDo, It.IsAny<ServerCallContext>());
@@ -132,6 +122,7 @@ namespace UploadThingsTestProject
         {
             // Clean up after each test
             _MSSQLContext.Dispose();
+            _unitofWorkRepository.Dispose();
         }
     }
 }

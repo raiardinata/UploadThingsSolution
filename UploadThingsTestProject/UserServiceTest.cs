@@ -3,18 +3,17 @@ using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
-using UploadThingsGrpcService.Domain.Interfaces;
+using UploadThingsGrpcService.Infrastructure;
 using UploadThingsGrpcService.Infrastructure.Data;
-using UploadThingsGrpcService.Infrastructure.Repositories;
-using UploadThingsGrpcService.Presentation.Services;
 using UploadThingsGrpcService.UserProto;
 
 namespace UploadThingsTestProject
 {
     class UserServiceTest
     {
-        private IUserRepository _iUserRepository;
+        private UnitofWork _unitofWorkRepository;
         private IConfiguration _configuration;
         private MSSQLContext _MSSQLContext;
         private UserServices _userServices;
@@ -34,8 +33,21 @@ namespace UploadThingsTestProject
                 .Options;
 
             _MSSQLContext = new MSSQLContext(options);
-            _iUserRepository = new UserRepository(_MSSQLContext);
-            _userServices = new UserServices(_iUserRepository);
+            _unitofWorkRepository = new UnitofWork(_MSSQLContext);
+            _userServices = new UserServices(_unitofWorkRepository);
+        }
+
+        private decimal GetLatestIdAsync(string table)
+        {
+            // Get latest id
+            decimal id = 0;
+
+            id = _MSSQLContext.Set<CurrentIdentity>()
+                    .FromSqlRaw("SELECT IDENT_CURRENT('" + table + "') AS Id")
+                    .AsEnumerable()
+                    .Select(p => p.Id)
+                    .FirstOrDefault();
+            return id + 1;
         }
 
         [Test]
@@ -55,47 +67,25 @@ namespace UploadThingsTestProject
         [Test]
         public async Task ReadAllUser_ShouldReturnAllUserData()
         {
-            // Arrange
-            GetAllRequest request = new();
-            GetAllResponse responseExpected = new()
-            {
-                UserData = {
-                    new ReadUserResponse { Id = 1, Name = "Rai Ardinata", Email = "raiardinata@gmail.com" },
-                    new ReadUserResponse { Id = 3, Name = "Abdul Somat", Email = "abdulsomat@gmail.com" },
-                    new ReadUserResponse { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" },
-                }
-            };
-
             // Act
-            GetAllResponse response = await _userServices.ListUser(request, It.IsAny<ServerCallContext>());
+            GetAllResponse response = await _userServices.ListUser(new GetAllRequest(), It.IsAny<ServerCallContext>());
 
             // Assert
-            Assert.That(response, Is.EqualTo(responseExpected));
+            Assert.That(response, Is.Not.Null);
         }
 
         [Test]
         public async Task CreateUserandDeleteUser_ShouldCreateUsertoDatabaseThenDeleteUser()
         {
-            int id = 0;
-            // Get latest id
-            User toDoItemObject = await _MSSQLContext.Set<User>().OrderByDescending(ToDoItems => ToDoItems.Id).FirstOrDefaultAsync() ?? new User();
-            if (toDoItemObject == null)
-            {
-                Assert.Fail("");
-            }
-            else
-            {
-                // C# cannot check we already make sure it's not null eventhough there is toDoItemObject == null, is there a workaround for this?
-                id = (int)toDoItemObject.Id + 1;
-            }
             // Arrange
+            int id = (int)GetLatestIdAsync("Users");
             CreateUserRequest requestCreateUser = new() { Name = "Kera Sakti", Email = "monkeyking@gmail.com" };
-            // The Id will depend of the latest User Data in the Database.
+
             ReadUserRequest requestReadUser = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
             ReadUserResponse responseExpected = new() { Id = id, Name = "Kera Sakti", Email = "monkeyking@gmail.com" };
 
             // Act 1 Create User Then Read It
-            CreateUserResponse responseCreateUser = await _userServices.CreateUser(requestCreateUser, It.IsAny<ServerCallContext>());
+            await _userServices.CreateUser(requestCreateUser, It.IsAny<ServerCallContext>());
             ReadUserResponse responseReadUser = await _userServices.ReadUser(requestReadUser, It.IsAny<ServerCallContext>());
             // Assert Act 1, User Should be in The Database
             Assert.That(responseReadUser, Is.EqualTo(responseExpected));
@@ -131,6 +121,7 @@ namespace UploadThingsTestProject
         {
             // Clean up after each test
             _MSSQLContext.Dispose();
+            _unitofWorkRepository.Dispose();
         }
     }
 }

@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "UploadThingsGrpcService.ProductProto";
+
+service ProductService {
+	// Create
+	rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+		option (google.api.http) = {
+			post : "/v1/Product",
+			body : "*"
+		};
+	}
+
+	// Read Single
+	rpc ReadProduct(ReadProductRequest) returns (ReadProductResponse) {
+		option (google.api.http) = {
+			patch : "/v1/Product/{id}",
+			body : "*"
+		};
+	}
+
+	// Read List
+	rpc ListProduct(GetAllRequest) returns (GetAllResponse) {
+		option (google.api.http) = {
+			get : "/v1/Product"
+		};
+	}
+
+	// Update
+	rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse) {
+		option (google.api.http) = {
+			put : "/v1/Product",
+			body : "*"
+		};
+	}
+
+	// Delete
+	rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {
+		option (google.api.http) = {
+			delete : "/v1/Product/{id}"
+		};
+	}
+
+	// Test
+	rpc RAFunction(TestRequest) returns (TestResponse) { }
+}
+
+message TestRequest { }
+message TestResponse {
+	string hello = 1;
+}
+
+message CreateProductRequest {
+	string product_name = 1;
+	string product_type = 2;
+	string product_image_path = 3;
+	double product_price = 4;
+}
+message CreateProductResponse {
+	int32 id = 1;
+}
+
+message ReadProductRequest {
+	int32 id = 1;
+	google.protobuf.FieldMask data_that_needed = 2;
+}
+message ReadProductResponse {
+	int32 id = 1;
+	string product_name = 2;
+	string product_type = 3;
+	string product_image_path = 4;
+	double product_price = 5;
+}
+
+message GetAllRequest{}
+message GetAllResponse{
+	repeated ReadProductResponse product_data = 1;
+}
+
+message UpdateProductRequest {
+	int32 id = 1;
+	string product_name = 2;
+	string product_type = 3;
+	string product_image_path = 4;
+	double product_price = 5;
+}
+message UpdateProductResponse {
+	int32 id = 1;
+}
+
+message DeleteProductRequest {
+	int32 id = 1;
+}
+message DeleteProductResponse {
+	int32 id = 1;
+}

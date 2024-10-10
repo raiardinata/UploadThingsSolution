@@ -8,6 +8,7 @@ namespace UploadThingsGrpcService.Infrastructure.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<ToDoItem> ToDoItems => Set<ToDoItem>();
         public DbSet<Product> Product => Set<Product>();
+        public DbSet<CurrentIdentity> CurrentIdentity => Set<CurrentIdentity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
