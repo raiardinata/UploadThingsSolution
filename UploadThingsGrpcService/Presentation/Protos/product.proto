@@ -17,15 +17,14 @@ service ProductService {
 	// Read Single
 	rpc ReadProduct(ReadProductRequest) returns (ReadProductResponse) {
 		option (google.api.http) = {
-			patch : "/v1/Product/{id}",
-			body : "*"
+			get : "/v1/Product"
 		};
 	}
 
 	// Read List
 	rpc ListProduct(GetAllRequest) returns (GetAllResponse) {
 		option (google.api.http) = {
-			get : "/v1/Product"
+			get : "/v1/Product/GetAllList"
 		};
 	}
 

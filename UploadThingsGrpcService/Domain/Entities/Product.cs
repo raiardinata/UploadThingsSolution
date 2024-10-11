@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using UploadThingsGrpcService.Domain.Interfaces;
 
 namespace UploadThingsGrpcService.Domain.Entities
@@ -16,6 +17,7 @@ namespace UploadThingsGrpcService.Domain.Entities
         public string? ProductImagePath { get; set; }
 
         [Required(ErrorMessage = "Price is required")]
+        [Precision(18, 4)]
         public decimal ProductPrice { get; set; }
 
         public override bool Equals(object? obj)

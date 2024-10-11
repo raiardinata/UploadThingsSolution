@@ -1,8 +1,11 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using FluentAssertions;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System.Net.Http.Json;
+using System.Text.Json;
 using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Infrastructure;
@@ -17,10 +20,17 @@ namespace UploadThingsTestProject
         private IConfiguration _configuration;
         private MSSQLContext _MSSQLContext;
         private UserServices _userServices;
+        private HttpClient _httpClient;
+        private JsonSerializerOptions _jsonSerializerOptions;
 
         [SetUp]
         public void SetUp()
         {
+            // RESTful setup
+            _httpClient = new() { BaseAddress = new Uri("https://localhost:7102/") };
+            _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+
+            // gRpc setup
             // Build configuration from appsettings.Development.json
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -37,19 +47,89 @@ namespace UploadThingsTestProject
             _userServices = new UserServices(_unitofWorkRepository);
         }
 
-        private decimal GetLatestIdAsync(string table)
+        public class UserResponse
+        {
+            public List<User>? UserData { get; set; }
+        }
+
+        private int GetLatestIdAsync(string table)
         {
             // Get latest id
-            decimal id = 0;
+            int id = 0;
 
             id = _MSSQLContext.Set<CurrentIdentity>()
-                    .FromSqlRaw("SELECT IDENT_CURRENT('" + table + "') AS Id")
+                    .FromSqlRaw("SELECT CAST(IDENT_CURRENT('" + table + "') AS int) AS Id")
                     .AsEnumerable()
                     .Select(p => p.Id)
                     .FirstOrDefault();
             return id + 1;
         }
 
+        // RESTful Test
+        [Test]
+        public async Task ReadByIDUser_FromRESTful()
+        {
+            // Make sure to check the data exist first
+            HttpResponseMessage response = await _httpClient.GetAsync("v1/User?id=3&data_that_needed=id,name,email");
+            response.IsSuccessStatusCode.Should().BeTrue();
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            User? UserResponse = JsonSerializer.Deserialize<User>(jsonResponse, _jsonSerializerOptions);
+
+            UserResponse.Should().NotBeNull();
+            UserResponse?.Id.Should().NotBe(null);
+        }
+
+        [Test]
+        public async Task ReadAllUser_FromRESTful()
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("v1/User/GetAllList");
+            response.IsSuccessStatusCode.Should().BeTrue();
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            UserResponse? UserResponse = JsonSerializer.Deserialize<UserResponse>(jsonResponse, _jsonSerializerOptions);
+
+            UserResponse.Should().NotBeNull();
+            UserResponse?.UserData.Should().NotBeNull();
+            UserResponse?.UserData.Should().HaveCountGreaterThan(0);
+        }
+
+        [Test]
+        public async Task CreateUser_and_DeleteUser_FromRESTful()
+        {
+            User content = new()
+            {
+                Name = "Ut",
+                Email = "ex esse cupidatat commodo",
+            };
+
+            HttpResponseMessage createResponse = await _httpClient.PostAsJsonAsync("v1/User", content);
+            createResponse.IsSuccessStatusCode.Should().BeTrue();
+
+            string jsonResponse = await createResponse.Content.ReadAsStringAsync();
+            User? UserResponse = JsonSerializer.Deserialize<User>(jsonResponse, _jsonSerializerOptions);
+
+            UserResponse.Should().NotBeNull();
+
+            HttpResponseMessage deleteResponse = await _httpClient.DeleteAsync($"v1/User/{UserResponse?.Id}");
+            deleteResponse.IsSuccessStatusCode.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task UpdateUser_FromRESTful()
+        {
+            User? content = new()
+            {
+                Id = 12,
+                Name = "updateto Ut",
+                Email = "updateto ex esse cupidatat commodo",
+            };
+
+            HttpResponseMessage updateResponse = await _httpClient.PutAsJsonAsync("v1/User", content);
+            updateResponse.IsSuccessStatusCode.Should().BeTrue();
+        }
+
+        // gRpc Test
         [Test]
         public async Task ReadUserByID_ShouldReturnUserData()
         {
@@ -78,7 +158,7 @@ namespace UploadThingsTestProject
         public async Task CreateUserandDeleteUser_ShouldCreateUsertoDatabaseThenDeleteUser()
         {
             // Arrange
-            int id = (int)GetLatestIdAsync("Users");
+            int id = GetLatestIdAsync("Users");
             CreateUserRequest requestCreateUser = new() { Name = "Kera Sakti", Email = "monkeyking@gmail.com" };
 
             ReadUserRequest requestReadUser = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };

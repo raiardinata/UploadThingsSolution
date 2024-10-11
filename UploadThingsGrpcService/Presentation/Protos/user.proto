@@ -17,15 +17,14 @@ service UserService {
 	// Read Single
 	rpc ReadUser(ReadUserRequest) returns (ReadUserResponse) {
 		option (google.api.http) = {
-			patch : "/v1/User/{id}",
-			body : "*"
+			get : "/v1/User"
 		};
 	}
 
 	// Read List
 	rpc ListUser(GetAllRequest) returns (GetAllResponse) {
 		option (google.api.http) = {
-			get : "/v1/User"
+			get : "/v1/User/GetAllList"
 		};
 	}
 

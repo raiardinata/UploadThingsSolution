@@ -2,6 +2,6 @@
 {
     public class CurrentIdentity
     {
-        public decimal Id { get; set; }
+        public int Id { get; set; }
     }
 }

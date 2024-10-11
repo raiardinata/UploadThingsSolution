@@ -19,15 +19,14 @@ service ToDoService {
 	// Read Single
 	rpc ReadToDo(ReadToDoRequest) returns (ReadToDoResponse) {
 		option (google.api.http) = {
-			patch : "/v1/todo/{id}",
-			body : "*"
+			get : "/v1/todo"
 		};
 	}
 
 	// Read List
 	rpc ListToDo(GetAllRequest) returns (GetAllResponse) {
 		option (google.api.http) = {
-			get : "/v1/todo"
+			get : "/v1/todo/GetAllList"
 		};
 	}
 

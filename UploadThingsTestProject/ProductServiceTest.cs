@@ -1,8 +1,11 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using FluentAssertions;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System.Net.Http.Json;
+using System.Text.Json;
 using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Infrastructure;
@@ -17,10 +20,17 @@ namespace UploadThingsTestProject
         private IConfiguration _configuration;
         private MSSQLContext _MSSQLContext;
         private ProductServices _productService;
+        private HttpClient _httpClient;
+        private JsonSerializerOptions _jsonSerializerOptions;
 
         [SetUp]
         public void Setup()
         {
+            // RESTful setup
+            _httpClient = new() { BaseAddress = new Uri("https://localhost:7102/") };
+            _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+
+            // gRpc setup
             IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
@@ -35,19 +45,93 @@ namespace UploadThingsTestProject
             _productService = new ProductServices(_UnitofWorkRepository);
         }
 
-        private decimal GetLatestIdAsync(string table)
+        public class ProductResponse
+        {
+            public List<Product>? ProductData { get; set; }
+        }
+
+        private int GetLatestIdAsync(string table)
         {
             // Get latest id
-            decimal id = 0;
+            int id = 0;
 
             id = _MSSQLContext.Set<CurrentIdentity>()
-                    .FromSqlRaw("SELECT IDENT_CURRENT('" + table + "') AS Id")
+                    .FromSqlRaw("SELECT CAST(IDENT_CURRENT('" + table + "') AS int) AS Id")
                     .AsEnumerable()
                     .Select(p => p.Id)
                     .FirstOrDefault();
             return id + 1;
         }
 
+        // RESTful Test
+        [Test]
+        public async Task ReadByIDProduct_FromRESTful()
+        {
+            // Make sure to check the data exist first
+            HttpResponseMessage response = await _httpClient.GetAsync("v1/Product?id=3&data_that_needed=id,productname,producttype,productprice,productimagepath");
+            response.IsSuccessStatusCode.Should().BeTrue();
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            User? productResponse = JsonSerializer.Deserialize<User>(jsonResponse, _jsonSerializerOptions);
+
+            productResponse.Should().NotBeNull();
+            productResponse?.Id.Should().NotBe(null);
+        }
+
+        [Test]
+        public async Task ReadAllProduct_FromRESTful()
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("v1/Product/GetAllList");
+            response.IsSuccessStatusCode.Should().BeTrue();
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            ProductResponse? productResponse = JsonSerializer.Deserialize<ProductResponse>(jsonResponse, _jsonSerializerOptions);
+
+            productResponse.Should().NotBeNull();
+            productResponse?.ProductData.Should().NotBeNull();
+            productResponse?.ProductData.Should().HaveCountGreaterThan(0);
+        }
+
+        [Test]
+        public async Task CreateProduct_and_DeleteProduct_FromRESTful()
+        {
+            Product content = new()
+            {
+                ProductImagePath = "Ut",
+                ProductName = "ex esse cupidatat commodo",
+                ProductPrice = 1,
+                ProductType = "quis esse in"
+            };
+
+            HttpResponseMessage createResponse = await _httpClient.PostAsJsonAsync("v1/Product", content);
+            createResponse.IsSuccessStatusCode.Should().BeTrue();
+
+            string jsonResponse = await createResponse.Content.ReadAsStringAsync();
+            Product? productResponse = JsonSerializer.Deserialize<Product>(jsonResponse, _jsonSerializerOptions);
+
+            productResponse.Should().NotBeNull();
+
+            HttpResponseMessage deleteResponse = await _httpClient.DeleteAsync($"v1/Product/{productResponse?.Id}");
+            deleteResponse.IsSuccessStatusCode.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task UpdateProduct_FromRESTful()
+        {
+            Product? content = new()
+            {
+                Id = 47,
+                ProductImagePath = "updateto Ut",
+                ProductName = "updateto ex esse cupidatat commodo",
+                ProductPrice = 1,
+                ProductType = "updateto quis esse in"
+            };
+
+            HttpResponseMessage updateResponse = await _httpClient.PutAsJsonAsync("v1/Product", content);
+            updateResponse.IsSuccessStatusCode.Should().BeTrue();
+        }
+
+        // gRpc Test
         [Test]
         public async Task ReadProductByID_ShouldReturnProductData()
         {
@@ -88,7 +172,7 @@ namespace UploadThingsTestProject
         public async Task CreateProductandDeleteProduct_ShouldCreateProducttoDatabaseThenDeleteProduct()
         {
             // Arrange
-            int id = (int)GetLatestIdAsync("Product");
+            int id = GetLatestIdAsync("Product");
             CreateProductRequest requestCreateProduct = new() { ProductName = "test Create Product Nunit", ProductType = "test_type", ProductPrice = 1.1234, ProductImagePath = "Images/001" };
 
             ReadProductRequest requestReadProduct = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "productname", "producttype", "productprice", "productimagepath" } } }; // The Id will depend of the latest Product Data in the Database.
@@ -111,7 +195,7 @@ namespace UploadThingsTestProject
         public async Task UpdateProduct_ShouldUpdateProductData()
         {
             // Arrange Update Product
-            int id = 2;
+            int id = 3;
             UpdateProductRequest requestUpdateProduct = new() { Id = id, ProductName = "Update Product Test 1", ProductType = "test_type", ProductPrice = 2, ProductImagePath = "Images/002" };
 
             // Arrange Read Product
@@ -133,6 +217,7 @@ namespace UploadThingsTestProject
         {
             _MSSQLContext.Dispose();
             _UnitofWorkRepository.Dispose();
+            _httpClient.Dispose();
         }
     }
 }
