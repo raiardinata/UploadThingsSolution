@@ -36,7 +36,7 @@ namespace UploadThingsTestProject
                 .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
             _configuration = configurationBuilder.Build();
 
-            var option = new DbContextOptionsBuilder<MSSQLContext>()
+            DbContextOptions<MSSQLContext> option = new DbContextOptionsBuilder<MSSQLContext>()
                 .UseSqlServer(_configuration.GetConnectionString("MSSQLToDoDatabaseConnection"))
                 .Options;
 
@@ -58,7 +58,7 @@ namespace UploadThingsTestProject
             id = _MSSQLContext.Set<CurrentIdentity>()
                     .FromSqlRaw("SELECT CAST(IDENT_CURRENT('" + table + "') AS int) AS Id")
                     .AsEnumerable()
-                    .Select(p => p.Id)
+                    .Select(static p => p.Id)
                     .FirstOrDefault();
             return id + 1;
         }

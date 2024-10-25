@@ -32,13 +32,13 @@ namespace UploadThingsTestProject
 
             // gRpc setup
             // Build configuration from appsettings.Development.json
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+               .SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
             _configuration = builder.Build();
 
             // Set up real DB connection, make sure it development database
-            var options = new DbContextOptionsBuilder<MSSQLContext>()
+            DbContextOptions<MSSQLContext> options = new DbContextOptionsBuilder<MSSQLContext>()
                 .UseSqlServer(_configuration.GetConnectionString("MSSQLToDoDatabaseConnection"))
                 .Options;
 
@@ -60,7 +60,7 @@ namespace UploadThingsTestProject
             id = _MSSQLContext.Set<CurrentIdentity>()
                     .FromSqlRaw("SELECT CAST(IDENT_CURRENT('" + table + "') AS int) AS Id")
                     .AsEnumerable()
-                    .Select(p => p.Id)
+                    .Select(static p => p.Id)
                     .FirstOrDefault();
             return id + 1;
         }

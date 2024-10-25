@@ -4,7 +4,7 @@ using UploadThingsGrpcService.Domain.Interfaces;
 using UploadThingsGrpcService.Infrastructure;
 using UploadThingsGrpcService.Infrastructure.Data;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddGrpc().AddJsonTranscoding();
@@ -13,7 +13,7 @@ builder.Services.AddDbContext<MSSQLContext>(options => options.UseSqlServer(buil
 // Register your Unit of Work pattern.
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<GreeterService>();
