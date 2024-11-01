@@ -1,6 +1,8 @@
 <section>
-  <form>
-    <input type="text" placeholder="Filter by city" />
-    <button class="primary" type="button">Search</button>
-  </form>
+  <input class="m-2" type="text" placeholder="Filter by city" #filter (keyup.enter)="filterResults(filter.value)" />
+  <button class="primary m-1" type="button" (click)="filterResults(filter.value)">Search</button>
+</section>
+<section class="results">
+  <app-housing-location *ngFor="let housingLocation of filteredLocationList" [housingLocation]="housingLocation">
+  </app-housing-location>
 </section>

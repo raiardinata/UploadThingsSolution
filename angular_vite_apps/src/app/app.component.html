@@ -1,8 +1,10 @@
 <main>
-  <header>
-    <img class="h-12 w-auto" src="home.svg" alt="home" aria-hidden="true" />
-  </header>
-  <section>
-    <app-home></app-home>
+  <a [routerLink]="['/']">
+    <header class="brand-name ml-2 mt-1 mb-1">
+      <img class="brand-logo" src="logo.svg" alt="logo" aria-hidden="true" />
+    </header>
+  </a>
+  <section class="content">
+    <router-outlet></router-outlet>
   </section>
 </main>

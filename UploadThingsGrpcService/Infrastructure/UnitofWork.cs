@@ -11,6 +11,7 @@ namespace UploadThingsGrpcService.Infrastructure
         public IProductRepository ProductRepository { get; } = new ProductRepository(context);
         public IToDoRepository ToDoRepository { get; } = new ToDoRepository(context);
         public IUserRepository UserRepository { get; } = new UserRepository(context);
+        public IHousingLocationRepository HousingLocationRepository { get; } = new HousingLocationRepository(context);
 
         public async Task SaveAsync()
         {

@@ -12,6 +12,7 @@
     <None Remove="Presentation\Protos\product.proto" />
     <None Remove="Presentation\Protos\todo.proto" />
     <None Remove="Presentation\Protos\user.proto" />
+    <None Remove="Presentation\Protos\housing.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     
-    <PackageReference Include="microsoft.entityFrameworkCore.design" Version="8.0.8">
+    <PackageReference Include="microsoft.entityFrameworkCore.design" Version="8.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -41,6 +42,7 @@
     <Protobuf Include="Presentation\Protos\product.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\todo.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\user.proto" GrpcServices="Server" />
+    <Protobuf Include="Presentation\Protos\housing.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "UploadThingsGrpcService.HousingLocationProto";
+
+service HousingLocationService {
+	// Create
+	rpc CreateHousingLocation(CreateHousingLocationRequest) returns (CreateHousingLocationResponse) {
+		option (google.api.http) = {
+			post : "/v1/HousingLocation",
+			body : "*"
+		};
+	}
+
+	// Read Single
+	rpc ReadHousingLocation(ReadHousingLocationRequest) returns (ReadHousingLocationResponse) {
+		option (google.api.http) = {
+			get : "/v1/HousingLocation"
+		};
+	}
+
+	// Read List
+	rpc ListHousingLocation(GetAllRequest) returns (GetAllResponse) {
+		option (google.api.http) = {
+			get : "/v1/HousingLocation/GetAllList"
+		};
+	}
+
+	// Update
+	rpc UpdateHousingLocation(UpdateHousingLocationRequest) returns (UpdateHousingLocationResponse) {
+		option (google.api.http) = {
+			put : "/v1/HousingLocation",
+			body : "*"
+		};
+	}
+
+	// Delete
+	rpc DeleteHousingLocation(DeleteHousingLocationRequest) returns (DeleteHousingLocationResponse) {
+		option (google.api.http) = {
+			delete : "/v1/HousingLocation/{id}"
+		};
+	}
+
+	// Test
+	rpc RAFunction(TestRequest) returns (TestResponse) { }
+}
+
+message TestRequest { }
+message TestResponse {
+	string hello = 1;
+}
+
+message CreateHousingLocationRequest {
+	int32 id = 1;
+	string name = 2;
+	string city = 3;
+	string state = 4;
+	string photo = 5;
+	int32 availableUnits = 6;
+	bool wifi = 7;
+	bool laundry = 8;
+}
+message CreateHousingLocationResponse {
+	int32 id = 1;
+}
+
+message ReadHousingLocationRequest {
+	int32 id = 1;
+	google.protobuf.FieldMask data_that_needed = 2;
+}
+message ReadHousingLocationResponse {
+	int32 id = 1;
+	string name = 2;
+	string city = 3;
+	string state = 4;
+	string photo = 5;
+	int32 availableUnits = 6;
+	bool wifi = 7;
+	bool laundry = 8;
+}
+
+message GetAllRequest{}
+message GetAllResponse{
+	repeated ReadHousingLocationResponse housing_location_data = 1;
+}
+
+message UpdateHousingLocationRequest {
+	int32 id = 1;
+	string name = 2;
+	string city = 3;
+	string state = 4;
+	string photo = 5;
+	int32 availableUnits = 6;
+	bool wifi = 7;
+	bool laundry = 8;
+}
+message UpdateHousingLocationResponse {
+	int32 id = 1;
+}
+
+message DeleteHousingLocationRequest {
+	int32 id = 1;
+}
+message DeleteHousingLocationResponse {
+	int32 id = 1;
+}
+
