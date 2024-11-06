@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HousingLocationComponent } from '../housing-location/housing-location.component';
 import { HousingLocation } from '../housinglocation';
@@ -15,7 +15,7 @@ export class HomeComponent {
   readonly baseUrl = 'https://angular.dev/assets/images/tutorials/common';
 
   filteredLocationList: HousingLocation[] = [];
-  housingLocationList: HousingLocation[];
+  housingLocationList: HousingLocation[] = [];
   housingService: HousingService = inject(HousingService);
 
   filterResults(searchTerm: string) {
@@ -31,12 +31,16 @@ export class HomeComponent {
     );
   }
 
-  onSubmit(event: Event) {
-    event.preventDefault(); // Prevents the form from submitting and reloading the page
-  }
-
   constructor() {
-    this.housingLocationList = this.housingService.getAllHousingLocation();
-    this.filteredLocationList = this.housingLocationList;
+    this.housingService.getAllHousingLocations().subscribe(
+      {
+        next: (data) => {
+          console.log('Housing Location Data:', data.housingLocationData);
+          this.housingLocationList = data.housingLocationData;
+          this.filteredLocationList = data.housingLocationData;
+        },
+        error: (err) => console.error('Error fetching housingLocationList', err),
+      }
+    );
   }
 }

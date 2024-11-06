@@ -4,6 +4,7 @@ import { HousingService } from '../housing.service';
 import { HousingLocation } from '../housinglocation';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
+import { error } from 'console';
 
 @Component({
   selector: 'app-details',
@@ -24,8 +25,11 @@ export class DetailsComponent {
   });
 
   constructor() {
-    const housingLocationId: number = Number(this.route.snapshot.params["id"]);
-    this.housingLocation = this.housingService.getHousingLocationById(housingLocationId);
+    const housingLocationId: number = parseInt(this.route.snapshot.params['id'], 10);
+    this.housingService.getHousingLocationById(housingLocationId).subscribe({
+      next: (housingLocationData) => (this.housingLocation = housingLocationData),
+      error: (err) => console.error('Error fetching housingLocationListById', err),
+    });
   }
 
   submitApplication() {

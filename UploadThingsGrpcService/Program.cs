@@ -6,6 +6,15 @@ using UploadThingsGrpcService.Infrastructure.Data;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+// Add CORS setting
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+        policy.WithOrigins("http://localhost:4200") // Update with your frontend's origin
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+});
+
 // Add services to the container.
 builder.Services.AddGrpc().AddJsonTranscoding();
 builder.Services.AddDbContext<MSSQLContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQLToDoDatabaseConnection")));
@@ -14,6 +23,8 @@ builder.Services.AddDbContext<MSSQLContext>(options => options.UseSqlServer(buil
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
 WebApplication app = builder.Build();
+
+app.UseCors("AllowSpecificOrigin");
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<GreeterService>();
