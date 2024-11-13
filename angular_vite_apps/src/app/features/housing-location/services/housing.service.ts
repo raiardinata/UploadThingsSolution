@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HousingLocation } from './housinglocation';
+import { GetAllHousingLocation, HousingLocation } from '../interfaces/IHousingLocation';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -13,8 +13,8 @@ export class HousingService {
 
   constructor(private http: HttpClient) { }
 
-  getAllHousingLocations(): Observable<any> {
-    return this.http.get<any>(`${this.url}/GetAllList`).pipe(
+  getAllHousingLocations(): Observable<GetAllHousingLocation> {
+    return this.http.get<GetAllHousingLocation>(`${this.url}/GetAllList`).pipe(
       map((response) => response),
       catchError(this.handleError)
     );
@@ -23,7 +23,7 @@ export class HousingService {
   getHousingLocationById(id: number): Observable<HousingLocation | undefined> {
     return this.http.get<HousingLocation | undefined>(`${this.url}/?id=${id}&data_that_needed=id,name,city,state,photo,availableUnits,wifi,laundry`).pipe(
       map((response) => response),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -33,17 +33,19 @@ export class HousingService {
     );
   }
 
-  public handleError(error: HttpErrorResponse) {
-    // Check if the error is a client-side or network error
-    if (error.error instanceof ErrorEvent) {
-      console.error('Client-side error:', error.error.message);
-      return throwError(() => new Error(`Client-side error: ${error.error.message}`));
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'An unknown error occurred!';
+
+    if (typeof ErrorEvent !== 'undefined' && error.error instanceof ErrorEvent) {
+      // Client-side or network error
+      errorMessage = `Client-side error: ${error.error.message}`;
+    } else if (error.status === 0) {
+      errorMessage = `Network error: Verify the backend is running and reachable.`;
     } else {
-      // Server-side error
-      console.error(`Server error: ${error.status} - ${error.message}`);
-      return throwError(() =>
-        new Error(`Server error: ${error.status} - ${error.message}`)
-      );
+      errorMessage = `Backend returned code ${error.status}, body was: ${error.message}`;
     }
+
+    console.error('Detailed error:', error);
+    return throwError(() => new Error(errorMessage));
   }
 }

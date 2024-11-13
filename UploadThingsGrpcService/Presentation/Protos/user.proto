@@ -47,6 +47,7 @@ service UserService {
 message CreateUserRequest {
 	string name = 1;
 	string email = 2;
+	string passwordhashed = 3;
 }
 message CreateUserResponse {
 	int32 id = 1;
@@ -71,6 +72,7 @@ message UpdateUserRequest {
 	int32 id = 1;
 	string name = 2;
 	string email = 3;
+	string passwordhashed = 4;
 }
 message UpdateUserResponse {
 	int32 id = 1;

@@ -70,7 +70,14 @@
               "buildTarget": "angular_vite_apps:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "ssl": true,
+            "sslCert": "./src/cert/localhost.crt",
+            "sslKey": "./src/cert/localhost.key",
+            "host": "localhost",
+            "port": 4430
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"

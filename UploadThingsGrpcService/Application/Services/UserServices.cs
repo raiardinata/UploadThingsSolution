@@ -3,12 +3,39 @@ using Grpc.Core;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Domain.Interfaces;
 using UploadThingsGrpcService.UserProto;
+using Microsoft.AspNetCore.Identity;
 
 namespace UploadThingsGrpcService.Application.Services
 {
     public class UserServices(IUnitOfWork unitofWorkRepository) : UserService.UserServiceBase
     {
         private readonly IUnitOfWork _unitofWorkRepository = unitofWorkRepository;
+        private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
+
+        public string HashPassword(User user, string password)
+        {
+            try
+            {
+                return _passwordHasher.HashPassword(user, password);
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, "An error occurred while hashing the password.", ex));
+            }
+        }
+
+        public bool VerifyPassword(User user, string hashedPassword, string password)
+        {
+            try
+            {
+                PasswordVerificationResult result = _passwordHasher.VerifyHashedPassword(user, hashedPassword, password);
+                return result == PasswordVerificationResult.Success;
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, "An error occurred while verifying the password.", ex));
+            }
+        }
 
         ReadUserResponse readFullDataUser = new();
         public ReadUserResponse ApplyFieldMask(ReadUserResponse fullData, FieldMask fieldMask)
@@ -39,7 +66,9 @@ namespace UploadThingsGrpcService.Application.Services
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
             }
 
-            User user = new() { Name = request.Name, Email = request.Email };
+            User user = new() { Name = request.Name, Email = request.Email, PasswordHashed = request.Passwordhashed };
+            user.PasswordHashed = HashPassword(user, user.PasswordHashed);
+
             await _unitofWorkRepository.UserRepository.AddAsync(user);
             return await Task.FromResult(new CreateUserResponse { Id = user.Id });
         }
@@ -89,13 +118,14 @@ namespace UploadThingsGrpcService.Application.Services
 
         public override async Task<UpdateUserResponse> UpdateUser(UpdateUserRequest request, ServerCallContext context)
         {
-            if (request.Id <= 0 || request.Name == string.Empty || request.Email == string.Empty)
+            if (request.Id <= 0 || request.Name == string.Empty || request.Email == string.Empty || request.Passwordhashed == string.Empty)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
 
             User user = await _unitofWorkRepository.UserRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             user.Name = request.Name;
             user.Email = request.Email;
+            user.PasswordHashed = HashPassword(user, request.Passwordhashed);
 
             await _unitofWorkRepository.UserRepository.UpdateAsync(user);
             return await Task.FromResult(new UpdateUserResponse { Id = request.Id });

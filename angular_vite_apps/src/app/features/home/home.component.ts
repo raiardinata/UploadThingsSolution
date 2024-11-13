@@ -1,13 +1,14 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HousingLocationComponent } from '../housing-location/housing-location.component';
-import { HousingLocation } from '../housinglocation';
-import { HousingService } from '../housing.service';
+import { HousingLocation } from '../housing-location/interfaces/IHousingLocation';
+import { HousingService } from '../housing-location/services/housing.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HousingLocationComponent, CommonModule],
+  imports: [HousingLocationComponent, CommonModule, RouterLink],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -35,7 +36,6 @@ export class HomeComponent {
     this.housingService.getAllHousingLocations().subscribe(
       {
         next: (data) => {
-          console.log('Housing Location Data:', data.housingLocationData);
           this.housingLocationList = data.housingLocationData;
           this.filteredLocationList = data.housingLocationData;
         },

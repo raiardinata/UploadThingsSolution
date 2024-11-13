@@ -10,10 +10,13 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
-        policy.WithOrigins("http://localhost:4200") // Update with your frontend's origin
+        policy.WithOrigins("https://localhost:4430") // Update with your frontend's origin
               .AllowAnyMethod()
               .AllowAnyHeader());
 });
+
+// Add HealthCheck
+builder.Services.AddHealthChecks();
 
 // Add services to the container.
 builder.Services.AddGrpc().AddJsonTranscoding();
@@ -33,5 +36,6 @@ app.MapGrpcService<UserServices>();
 app.MapGrpcService<ProductServices>();
 app.MapGrpcService<HousingLocationServices>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+app.MapHealthChecks("/healthCheck");
 
 app.Run();

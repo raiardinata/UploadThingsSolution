@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { DetailsComponent } from './details/details.component';
+import { DetailsComponent } from './features/details/details.component';
+import { LoginPageComponent } from './features/login-page/login-page.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: HomeComponent,
+    component: LoginPageComponent,
     title: 'Home Page',
   },
   {

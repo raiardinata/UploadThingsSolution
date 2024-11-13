@@ -15,18 +15,21 @@ namespace UploadThingsGrpcService.Domain.Entities
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string? Email { get; set; }
 
+        [Required(ErrorMessage = "Password is required")]
+        public string? PasswordHashed { get; set; }
+
         public override bool Equals(object? obj)
         {
             if (obj is User user)
             {
-                return Id == user.Id && Name == user.Name && Email == user.Email;
+                return Id == user.Id && Name == user.Name && Email == user.Email && PasswordHashed == user.PasswordHashed;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Name, Email);
+            return HashCode.Combine(Id, Name, Email, PasswordHashed);
         }
     }
 

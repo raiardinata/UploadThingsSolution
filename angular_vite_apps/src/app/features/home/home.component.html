@@ -1,4 +1,11 @@
 <section>
+  <a [routerLink]="['/']">
+    <header class="brand-name ml-2 mt-1 mb-1">
+      <img class="brand-logo" src="logo.svg" alt="logo" aria-hidden="true" />
+    </header>
+  </a>
+</section>
+<section>
   <input class="m-2" type="text" placeholder="Filter by city" #filter (keyup.enter)="filterResults(filter.value)" />
   <button class="primary m-1" type="button" (click)="filterResults(filter.value)">Search</button>
 </section>
