@@ -131,27 +131,31 @@ namespace UploadThingsTestProject
 
         // gRpc Test
         [Test]
-        public async Task UserLogin_ShouldReturnUserExist()
+        public async Task UserLogin_SuccessAndFailedLogin()
         {
             // Arrange
-            UserLoginRequest request = new() { Email = "raiardinata@gmail.com", Passwordhashed = "AQAAAAIAAYagAAAAECqhjcZTz3iXaqRPSKpSURghspRNd0Z/YUtHgqmnhz6KGg9JHL88gAh0kuqVXzz6uw==" };
+            UserLoginRequest requestSuccess = new() { Email = "raiardinata@gmail.com", Passwordhashed = "AQAAAAIAAYagAAAAECqhjcZTz3iXaqRPSKpSURghspRNd0Z/YUtHgqmnhz6KGg9JHL88gAh0kuqVXzz6uw==" };
+            UserLoginRequest requestFailed = new() { Email = "abubu", Passwordhashed = "uwuwuwu" };
             UserLoginResponse responseExpected = new() { Valid = true };
 
             // Act
-            UserLoginResponse response = await _userServices.UserLogin(request, It.IsAny<ServerCallContext>());
+            UserLoginResponse responseSuccess = await _userServices.UserLogin(requestSuccess, It.IsAny<ServerCallContext>());
+            UserLoginResponse responseFailed = await _userServices.UserLogin(requestFailed, It.IsAny<ServerCallContext>());
 
             // Assess
-            Assert.That(response, Is.EqualTo(responseExpected));
+            Assert.That(responseSuccess, Is.EqualTo(responseExpected));
+            Assert.That(new UserLoginResponse() { Valid = false }, Is.EqualTo(responseFailed));
         }
+
         [Test]
         public async Task ReadUserByID_ShouldReturnUserData()
         {
             // Arrange
-            var request = new ReadUserRequest { Id = 6, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
-            var responseExpected = new ReadUserResponse { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" };
+            ReadUserRequest request = new() { Id = 6, DataThatNeeded = new FieldMask { Paths = { "id", "name", "email" } } };
+            ReadUserResponse responseExpected = new() { Id = 6, Name = "amet officia Excepteur", Email = "ipsum@gmail.com" };
 
             // Act
-            var response = await _userServices.ReadUser(request, It.IsAny<ServerCallContext>());
+            ReadUserResponse response = await _userServices.ReadUser(request, It.IsAny<ServerCallContext>());
 
             // Assert
             Assert.That(response, Is.EqualTo(responseExpected));

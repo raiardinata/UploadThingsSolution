@@ -153,7 +153,7 @@ namespace UploadThingsGrpcService.Application.Services
             bool methodResponse = await _unitofWorkRepository.UserRepository.UserLogin(user);
 
             if (!methodResponse)
-                throw new RpcException(new Status(StatusCode.Internal, "Wrong Email or Password."));
+                return await Task.FromResult(new UserLoginResponse() { Valid = methodResponse });
 
             return await Task.FromResult(new UserLoginResponse() { Valid = methodResponse });
         }
