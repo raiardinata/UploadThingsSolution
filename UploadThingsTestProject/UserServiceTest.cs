@@ -1,11 +1,11 @@
-﻿using FluentAssertions;
+﻿using System.Net.Http.Json;
+using System.Text.Json;
+using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using System.Net.Http.Json;
-using System.Text.Json;
 using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Infrastructure;
@@ -131,6 +131,19 @@ namespace UploadThingsTestProject
 
         // gRpc Test
         [Test]
+        public async Task UserLogin_ShouldReturnUserExist()
+        {
+            // Arrange
+            UserLoginRequest request = new() { Email = "raiardinata@gmail.com", Passwordhashed = "AQAAAAIAAYagAAAAECqhjcZTz3iXaqRPSKpSURghspRNd0Z/YUtHgqmnhz6KGg9JHL88gAh0kuqVXzz6uw==" };
+            UserLoginResponse responseExpected = new() { Valid = true };
+
+            // Act
+            UserLoginResponse response = await _userServices.UserLogin(request, It.IsAny<ServerCallContext>());
+
+            // Assess
+            Assert.That(response, Is.EqualTo(responseExpected));
+        }
+        [Test]
         public async Task ReadUserByID_ShouldReturnUserData()
         {
             // Arrange
@@ -205,4 +218,3 @@ namespace UploadThingsTestProject
         }
     }
 }
-

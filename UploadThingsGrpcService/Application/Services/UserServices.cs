@@ -1,16 +1,16 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using Microsoft.AspNetCore.Identity;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Domain.Interfaces;
 using UploadThingsGrpcService.UserProto;
-using Microsoft.AspNetCore.Identity;
 
 namespace UploadThingsGrpcService.Application.Services
 {
     public class UserServices(IUnitOfWork unitofWorkRepository) : UserService.UserServiceBase
     {
         private readonly IUnitOfWork _unitofWorkRepository = unitofWorkRepository;
-        private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
+        private readonly PasswordHasher<User> _passwordHasher = new();
 
         public string HashPassword(User user, string password)
         {
@@ -41,7 +41,7 @@ namespace UploadThingsGrpcService.Application.Services
         public ReadUserResponse ApplyFieldMask(ReadUserResponse fullData, FieldMask fieldMask)
         {
             ReadUserResponse selectedData = new();
-            foreach (var field in fieldMask.Paths)
+            foreach (string field in fieldMask.Paths)
             {
                 switch (field)
                 {
@@ -141,6 +141,21 @@ namespace UploadThingsGrpcService.Application.Services
             await _unitofWorkRepository.UserRepository.DeleteAsync(user.Id);
 
             return await Task.FromResult(new DeleteUserResponse { Id = request.Id });
+        }
+
+        public override async Task<UserLoginResponse> UserLogin(UserLoginRequest request, ServerCallContext context)
+        {
+            if (request.Email == string.Empty)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid Email or Password."));
+
+            User user = new() { Email = request.Email, PasswordHashed = request.Passwordhashed };
+
+            bool methodResponse = await _unitofWorkRepository.UserRepository.UserLogin(user);
+
+            if (!methodResponse)
+                throw new RpcException(new Status(StatusCode.Internal, "Wrong Email or Password."));
+
+            return await Task.FromResult(new UserLoginResponse() { Valid = methodResponse });
         }
     }
 }

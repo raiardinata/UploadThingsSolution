@@ -6,6 +6,14 @@ import "google/api/annotations.proto";
 option csharp_namespace = "UploadThingsGrpcService.UserProto";
 
 service UserService {
+	// Login
+	rpc UserLogin(UserLoginRequest) returns (UserLoginResponse) {
+		option (google.api.http) = {
+			get : "/v1/UserLogin",
+			body : "*"
+		};
+	}
+
 	// Create
 	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
 		option (google.api.http) = {
@@ -42,6 +50,14 @@ service UserService {
 			delete : "/v1/User/{id}"
 		};
 	}
+}
+
+message UserLoginRequest {
+	string email = 1;
+	string passwordhashed = 2;
+}
+message UserLoginResponse {
+	bool valid = 1;
 }
 
 message CreateUserRequest {
