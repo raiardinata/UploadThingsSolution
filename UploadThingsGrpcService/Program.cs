@@ -4,6 +4,7 @@ using UploadThingsGrpcService.Domain.Interfaces;
 using UploadThingsGrpcService.Infrastructure;
 using UploadThingsGrpcService.Infrastructure.Data;
 
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add CORS setting

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "UploadThingsGrpcService.PizzaEntitiesProto";
+
+service PizzaEntitiesService {
+	// Create
+	rpc CreatePizzaEntities(CreatePizzaEntitiesRequest) returns (CreatePizzaEntitiesResponse) {
+		option (google.api.http) = {
+			post : "/v1/PizzaEntities",
+			body : "*"
+		};
+	}
+
+	// Read Single
+	rpc ReadPizzaEntities(ReadPizzaEntitiesRequest) returns (ReadPizzaEntitiesResponse) {
+		option (google.api.http) = {
+			get : "/v1/PizzaEntities"
+		};
+	}
+
+	// Read List
+	rpc ListPizzaEntities(GetAllRequest) returns (GetAllResponse) {
+		option (google.api.http) = {
+			get : "/v1/PizzaEntities/GetAllList"
+		};
+	}
+
+	// Update
+	rpc UpdatePizzaEntities(UpdatePizzaEntitiesRequest) returns (UpdatePizzaEntitiesResponse) {
+		option (google.api.http) = {
+			put : "/v1/PizzaEntities",
+			body : "*"
+		};
+	}
+
+	// Delete
+	rpc DeletePizzaEntities(DeletePizzaEntitiesRequest) returns (DeletePizzaEntitiesResponse) {
+		option (google.api.http) = {
+			delete : "/v1/PizzaEntities/{id}"
+		};
+	}
+}
+
+message CreatePizzaEntitiesRequest {
+  int32 pizzaID = 1;
+  string pizzaName = 2;
+  string PizzaDescription = 3;
+  decimal PizzaPrice = 4;
+  bool Vegetarian = 5;
+  bool Vegan = 6;
+}
+message CreatePizzaEntitiesResponse {
+	int32 id = 1;
+}
+
+message ReadPizzaEntitiesRequest {
+	int32 id = 1;
+	google.protobuf.FieldMask data_that_needed = 2;
+}
+message ReadPizzaEntitiesResponse {
+  int32 pizzaID = 1;
+  string pizzaName = 2;
+  string PizzaDescription = 3;
+  decimal PizzaPrice = 4;
+  bool Vegetarian = 5;
+  bool Vegan = 6;
+}
+
+message GetAllRequest{}
+message GetAllResponse{
+	repeated ReadPizzaEntitiesResponse pizza_entities_data = 1;
+}
+
+message UpdatePizzaEntitiesRequest {
+  int32 pizzaID = 1;
+  string pizzaName = 2;
+  string PizzaDescription = 3;
+  decimal PizzaPrice = 4;
+  bool Vegetarian = 5;
+  bool Vegan = 6;
+}
+message UpdatePizzaEntitiesResponse {
+	int32 id = 1;
+}
+
+message DeletePizzaEntitiesRequest {
+	int32 id = 1;
+}
+message DeletePizzaEntitiesResponse {
+	int32 id = 1;
+}
