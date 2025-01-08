@@ -12,8 +12,8 @@ namespace UploadThingsGrpcService.Application.Services
 
         public ReadProductResponse ApplyFieldMask(ReadProductResponse fullData, FieldMask fieldMask)
         {
-            var selectedData = new ReadProductResponse();
-            foreach (var field in fieldMask.Paths)
+            ReadProductResponse selectedData = new();
+            foreach (string? field in fieldMask.Paths)
             {
                 switch (field)
                 {
@@ -31,6 +31,8 @@ namespace UploadThingsGrpcService.Application.Services
                         break;
                     case "productprice":
                         selectedData.ProductPrice = fullData.ProductPrice;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -98,7 +100,7 @@ namespace UploadThingsGrpcService.Application.Services
         {
             GetAllResponse response = new();
             IEnumerable<Product> productItem = await _unitofWorkRepository.ProductRepository.GetAllAsync();
-            foreach (var product in productItem)
+            foreach (Product? product in productItem)
             {
                 response.ProductData.Add(new ReadProductResponse
                 {
@@ -117,7 +119,7 @@ namespace UploadThingsGrpcService.Application.Services
             if (request.ProductName == string.Empty || request.ProductType == string.Empty || request.ProductImagePath == string.Empty)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Some of the data might be empty."));
 
-            var productItem = await _unitofWorkRepository.ProductRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            Product productItem = await _unitofWorkRepository.ProductRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             productItem.ProductName = request.ProductName;
             productItem.ProductImagePath = request.ProductImagePath;
@@ -133,7 +135,7 @@ namespace UploadThingsGrpcService.Application.Services
             if (request.Id <= 0)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
 
-            var productItem = await _unitofWorkRepository.ProductRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            Product productItem = await _unitofWorkRepository.ProductRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             await _unitofWorkRepository.ProductRepository.DeleteAsync(productItem.Id);
 

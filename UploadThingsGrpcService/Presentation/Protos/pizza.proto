@@ -1,94 +1,91 @@
 syntax = "proto3";
 
-import "google/protobuf/field_mask.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
 
-option csharp_namespace = "UploadThingsGrpcService.PizzaEntitiesProto";
+option csharp_namespace = "UploadThingsGrpcService.PizzaSpecialProto";
 
-service PizzaEntitiesService {
-	// Create
-	rpc CreatePizzaEntities(CreatePizzaEntitiesRequest) returns (CreatePizzaEntitiesResponse) {
-		option (google.api.http) = {
-			post : "/v1/PizzaEntities",
-			body : "*"
-		};
-	}
+service PizzaSpecialService {
+  // Create
+  rpc CreatePizzaSpecial(CreatePizzaSpecialRequest) returns (CreatePizzaSpecialResponse) {
+    option (google.api.http) = {
+      post: "/v1/PizzaSpecial"
+      body: "*"
+    };
+  }
 
-	// Read Single
-	rpc ReadPizzaEntities(ReadPizzaEntitiesRequest) returns (ReadPizzaEntitiesResponse) {
-		option (google.api.http) = {
-			get : "/v1/PizzaEntities"
-		};
-	}
+  // Read Single
+  rpc ReadPizzaSpecial(ReadPizzaSpecialRequest) returns (ReadPizzaSpecialResponse) {
+    option (google.api.http) = {get: "/v1/PizzaSpecial"};
+  }
 
-	// Read List
-	rpc ListPizzaEntities(GetAllRequest) returns (GetAllResponse) {
-		option (google.api.http) = {
-			get : "/v1/PizzaEntities/GetAllList"
-		};
-	}
+  // Read List
+  rpc ListPizzaSpecial(GetAllRequest) returns (GetAllResponse) {
+    option (google.api.http) = {get: "/v1/PizzaSpecial/GetAllList"};
+  }
 
-	// Update
-	rpc UpdatePizzaEntities(UpdatePizzaEntitiesRequest) returns (UpdatePizzaEntitiesResponse) {
-		option (google.api.http) = {
-			put : "/v1/PizzaEntities",
-			body : "*"
-		};
-	}
+  // Update
+  rpc UpdatePizzaSpecial(UpdatePizzaSpecialRequest) returns (UpdatePizzaSpecialResponse) {
+    option (google.api.http) = {
+      put: "/v1/PizzaSpecial"
+      body: "*"
+    };
+  }
 
-	// Delete
-	rpc DeletePizzaEntities(DeletePizzaEntitiesRequest) returns (DeletePizzaEntitiesResponse) {
-		option (google.api.http) = {
-			delete : "/v1/PizzaEntities/{id}"
-		};
-	}
+  // Delete
+  rpc DeletePizzaSpecial(DeletePizzaSpecialRequest) returns (DeletePizzaSpecialResponse) {
+    option (google.api.http) = {delete: "/v1/PizzaSpecial/{id}"};
+  }
 }
 
-message CreatePizzaEntitiesRequest {
-  int32 pizzaID = 1;
-  string pizzaName = 2;
-  string PizzaDescription = 3;
-  decimal PizzaPrice = 4;
-  bool Vegetarian = 5;
-  bool Vegan = 6;
+message CreatePizzaSpecialRequest {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  double baseprice = 4;
+  string imageurl = 5;
+  bool vegetarian = 6;
+  bool vegan = 7;
 }
-message CreatePizzaEntitiesResponse {
-	int32 id = 1;
-}
-
-message ReadPizzaEntitiesRequest {
-	int32 id = 1;
-	google.protobuf.FieldMask data_that_needed = 2;
-}
-message ReadPizzaEntitiesResponse {
-  int32 pizzaID = 1;
-  string pizzaName = 2;
-  string PizzaDescription = 3;
-  decimal PizzaPrice = 4;
-  bool Vegetarian = 5;
-  bool Vegan = 6;
+message CreatePizzaSpecialResponse {
+  int32 id = 1;
 }
 
-message GetAllRequest{}
-message GetAllResponse{
-	repeated ReadPizzaEntitiesResponse pizza_entities_data = 1;
+message ReadPizzaSpecialRequest {
+  int32 id = 1;
+  google.protobuf.FieldMask data_that_needed = 2;
+}
+message ReadPizzaSpecialResponse {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  double baseprice = 4;
+  string imageurl = 5;
+  bool vegetarian = 6;
+  bool vegan = 7;
 }
 
-message UpdatePizzaEntitiesRequest {
-  int32 pizzaID = 1;
-  string pizzaName = 2;
-  string PizzaDescription = 3;
-  decimal PizzaPrice = 4;
-  bool Vegetarian = 5;
-  bool Vegan = 6;
-}
-message UpdatePizzaEntitiesResponse {
-	int32 id = 1;
+message GetAllRequest {}
+message GetAllResponse {
+  repeated ReadPizzaSpecialResponse pizza_entities_data = 1;
 }
 
-message DeletePizzaEntitiesRequest {
-	int32 id = 1;
+message UpdatePizzaSpecialRequest {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  double baseprice = 4;
+  string imageurl = 5;
+  bool vegetarian = 6;
+  bool vegan = 7;
 }
-message DeletePizzaEntitiesResponse {
-	int32 id = 1;
+message UpdatePizzaSpecialResponse {
+  int32 id = 1;
+}
+
+message DeletePizzaSpecialRequest {
+  int32 id = 1;
+}
+message DeletePizzaSpecialResponse {
+  int32 id = 1;
 }

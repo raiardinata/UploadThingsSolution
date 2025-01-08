@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
@@ -11,10 +11,11 @@ using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Infrastructure;
 using UploadThingsGrpcService.Infrastructure.Data;
 using UploadThingsGrpcService.ProductProto;
+
 namespace UploadThingsTestProject
 {
 
-    public class ProductServiceTest
+    public class PizzaSpecialServiceTest
     {
         // RESTful setup
         private JsonSerializerOptions? _jsonSerializerOptions;

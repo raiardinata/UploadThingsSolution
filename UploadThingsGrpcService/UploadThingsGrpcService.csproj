@@ -13,6 +13,7 @@
     <None Remove="Presentation\Protos\todo.proto" />
     <None Remove="Presentation\Protos\user.proto" />
     <None Remove="Presentation\Protos\housing.proto" />
+    <None Remove="Presentation\Protos\pizza.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +52,7 @@
     <Protobuf Include="Presentation\Protos\todo.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\user.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\housing.proto" GrpcServices="Server" />
+    <Protobuf Include="Presentation\Protos\pizza.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

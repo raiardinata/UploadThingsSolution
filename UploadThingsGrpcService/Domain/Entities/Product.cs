@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using UploadThingsGrpcService.Domain.Interfaces;
 
 namespace UploadThingsGrpcService.Domain.Entities
@@ -22,11 +22,7 @@ namespace UploadThingsGrpcService.Domain.Entities
 
         public override bool Equals(object? obj)
         {
-            if (obj is Product product)
-            {
-                return Id == product.Id && ProductName == product.ProductName && ProductType == product.ProductType && ProductImagePath == product.ProductImagePath && ProductPrice == product.ProductPrice;
-            }
-            return false;
+            return obj is Product product && Id == product.Id && ProductName == product.ProductName && ProductType == product.ProductType && ProductImagePath == product.ProductImagePath && ProductPrice == product.ProductPrice;
         }
 
         public override int GetHashCode()

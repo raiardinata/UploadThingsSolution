@@ -36,6 +36,7 @@ app.MapGrpcService<ToDoServices>();
 app.MapGrpcService<UserServices>();
 app.MapGrpcService<ProductServices>();
 app.MapGrpcService<HousingLocationServices>();
+app.MapGrpcService<PizzaSpecialServices>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 app.MapHealthChecks("/healthCheck");
 

@@ -6,6 +6,7 @@
         IToDoRepository ToDoRepository { get; }
         IUserRepository UserRepository { get; }
         IHousingLocationRepository HousingLocationRepository { get; }
+        IPizzaSpecialRepository PizzaSpecialRepository { get; }
 
         Task SaveAsync();  // This commits all changes in a transaction
     }

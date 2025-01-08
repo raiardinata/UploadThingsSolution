@@ -12,8 +12,8 @@ namespace UploadThingsGrpcService.Application.Services
 
         public ReadHousingLocationResponse ApplyFieldMask(ReadHousingLocationResponse fullData, FieldMask fieldMask)
         {
-            var selectedData = new ReadHousingLocationResponse();
-            foreach (var field in fieldMask.Paths)
+            ReadHousingLocationResponse selectedData = new();
+            foreach (string? field in fieldMask.Paths)
             {
                 switch (field)
                 {
@@ -64,7 +64,9 @@ namespace UploadThingsGrpcService.Application.Services
                     request.State == string.Empty ||
                     request.Photo == string.Empty
                 )
+            {
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
+            }
 
             HousingLocation housingLocation = new()
             {
@@ -121,7 +123,7 @@ namespace UploadThingsGrpcService.Application.Services
         {
             GetAllResponse response = new();
             IEnumerable<HousingLocation> housingLocationItem = await _unitofWorkRepository.HousingLocationRepository.GetAllAsync();
-            foreach (var housingLocation in housingLocationItem)
+            foreach (HousingLocation? housingLocation in housingLocationItem)
             {
                 response.HousingLocationData.Add(new ReadHousingLocationResponse
                 {
@@ -143,7 +145,7 @@ namespace UploadThingsGrpcService.Application.Services
             if (request.Name == string.Empty || request.City == string.Empty || request.State == string.Empty)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Some of the data might be empty."));
 
-            var housingLocationItem = await _unitofWorkRepository.HousingLocationRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            HousingLocation housingLocationItem = await _unitofWorkRepository.HousingLocationRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             housingLocationItem.Name = request.Name;
             housingLocationItem.City = request.City;
@@ -162,7 +164,7 @@ namespace UploadThingsGrpcService.Application.Services
             if (request.Id <= 0)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
 
-            var housingLocationItem = await _unitofWorkRepository.HousingLocationRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
+            HousingLocation housingLocationItem = await _unitofWorkRepository.HousingLocationRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             await _unitofWorkRepository.HousingLocationRepository.DeleteAsync(housingLocationItem.Id);
 

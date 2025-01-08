@@ -5,6 +5,6 @@ namespace UploadThingsGrpcService.Domain.Interfaces
     public interface IHousingLocationRepository : IGeneralRepository<HousingLocation>
     {
         Task<string> Test();
-        // Add product-specific methods if needed
+        // Add housing location-specific methods if needed
     }
 }

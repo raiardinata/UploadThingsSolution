@@ -10,6 +10,6 @@ namespace UploadThingsGrpcService.Infrastructure.Repositories
         {
             return await Task.FromResult("Hai");
         }
-        // You can also add custom methods specific to the User entity here if needed
+        // You can also add custom methods specific to the Housing Location here if needed
     }
 }
