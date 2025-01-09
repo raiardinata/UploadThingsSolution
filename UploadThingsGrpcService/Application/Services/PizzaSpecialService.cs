@@ -15,7 +15,7 @@ namespace UploadThingsGrpcService.Application.Services
             ReadPizzaSpecialResponse selectedData = new();
             foreach (string? field in fieldMask.Paths)
             {
-                switch (field)
+                switch (field.ToLower())
                 {
                     case "id":
                         selectedData.Id = fullData.Id;
@@ -23,14 +23,14 @@ namespace UploadThingsGrpcService.Application.Services
                     case "name":
                         selectedData.Name = fullData.Name;
                         break;
-                    case "city":
+                    case "description":
                         selectedData.Description = fullData.Description;
                         break;
-                    case "state":
-                        selectedData.Baseprice = fullData.Baseprice;
+                    case "baseprice":
+                        selectedData.BasePrice = fullData.BasePrice;
                         break;
-                    case "photo":
-                        selectedData.Imageurl = fullData.Imageurl;
+                    case "imageurl":
+                        selectedData.ImageUrl = fullData.ImageUrl;
                         break;
                     default:
                         break;
@@ -41,21 +41,15 @@ namespace UploadThingsGrpcService.Application.Services
 
         public override async Task<CreatePizzaSpecialResponse> CreatePizzaSpecial(CreatePizzaSpecialRequest request, ServerCallContext context)
         {
-            if (
-                    request.Name == string.Empty ||
-                    request.Description == string.Empty ||
-                    request.Imageurl == string.Empty
-                )
-            {
+            if (request.Name == string.Empty || request.Description == string.Empty || request.ImageUrl == string.Empty)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
-            }
 
             PizzaSpecial pizzaSpecial = new()
             {
                 Name = request.Name,
-                BasePrice = (decimal)request.Baseprice,
+                BasePrice = (decimal)request.BasePrice,
                 Description = request.Description,
-                ImageUrl = request.Imageurl,
+                ImageUrl = request.ImageUrl,
             };
             await _unitofWorkRepository.PizzaSpecialRepository.AddAsync(pizzaSpecial);
             return await Task.FromResult(new CreatePizzaSpecialResponse { Id = pizzaSpecial.Id });
@@ -74,8 +68,8 @@ namespace UploadThingsGrpcService.Application.Services
                     Id = pizzaSpecialItem.Id,
                     Name = pizzaSpecialItem?.Name,
                     Description = pizzaSpecialItem?.Description,
-                    Baseprice = (double)pizzaSpecialItem!.BasePrice,
-                    Imageurl = pizzaSpecialItem?.ImageUrl,
+                    BasePrice = (double)pizzaSpecialItem!.BasePrice,
+                    ImageUrl = pizzaSpecialItem?.ImageUrl,
                 };
                 ReadPizzaSpecialResponse selectedData = ApplyFieldMask(readfulldata, request.DataThatNeeded);
 
@@ -84,8 +78,8 @@ namespace UploadThingsGrpcService.Application.Services
                     Id = selectedData.Id,
                     Name = selectedData?.Name,
                     Description = selectedData?.Description,
-                    Baseprice = selectedData!.Baseprice,
-                    Imageurl = selectedData?.Imageurl,
+                    BasePrice = selectedData!.BasePrice,
+                    ImageUrl = selectedData?.ImageUrl,
                 });
             }
 
@@ -98,13 +92,13 @@ namespace UploadThingsGrpcService.Application.Services
             IEnumerable<PizzaSpecial> pizzaSpecialItem = await _unitofWorkRepository.PizzaSpecialRepository.GetAllAsync();
             foreach (PizzaSpecial? pizzaSpecial in pizzaSpecialItem)
             {
-                response.PizzaEntitiesData.Add(new ReadPizzaSpecialResponse
+                response.PizzaSpecialData.Add(new ReadPizzaSpecialResponse
                 {
                     Id = pizzaSpecial.Id,
                     Name = pizzaSpecial?.Name,
                     Description = pizzaSpecial?.Description,
-                    Baseprice = (double)pizzaSpecial!.BasePrice,
-                    Imageurl = pizzaSpecial?.ImageUrl,
+                    BasePrice = (double)pizzaSpecial!.BasePrice,
+                    ImageUrl = pizzaSpecial?.ImageUrl,
                 });
             }
             return await Task.FromResult(response);
@@ -118,9 +112,9 @@ namespace UploadThingsGrpcService.Application.Services
             PizzaSpecial pizzaSpecialItem = await _unitofWorkRepository.PizzaSpecialRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
             pizzaSpecialItem.Name = request.Name;
-            pizzaSpecialItem.BasePrice = (decimal)request.Baseprice;
+            pizzaSpecialItem.BasePrice = (decimal)request.BasePrice;
             pizzaSpecialItem.Description = request.Description;
-            pizzaSpecialItem.ImageUrl = request.Imageurl;
+            pizzaSpecialItem.ImageUrl = request.ImageUrl;
 
             await _unitofWorkRepository.PizzaSpecialRepository.UpdateAsync(pizzaSpecialItem);
             return await Task.FromResult(new UpdatePizzaSpecialResponse { Id = request.Id });

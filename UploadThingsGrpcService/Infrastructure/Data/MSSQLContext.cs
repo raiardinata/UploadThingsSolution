@@ -13,6 +13,7 @@ namespace UploadThingsGrpcService.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CurrentIdentity>().HasNoKey();
             modelBuilder.Entity<Product>(static entity =>
             {
                 entity.Property(static e => e.ProductPrice)
