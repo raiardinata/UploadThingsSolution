@@ -34,35 +34,31 @@ service PizzaSpecialService {
 
   // Delete
   rpc DeletePizzaSpecial(DeletePizzaSpecialRequest) returns (DeletePizzaSpecialResponse) {
-    option (google.api.http) = {delete: "/v1/PizzaSpecial/{id}"};
+    option (google.api.http) = {delete: "/v1/PizzaSpecial/{Id}"};
   }
 }
 
 message CreatePizzaSpecialRequest {
-  int32 id = 1;
-  string name = 2;
-  string description = 3;
-  double baseprice = 4;
-  string imageurl = 5;
-  bool vegetarian = 6;
-  bool vegan = 7;
+  int32 Id = 1;
+  string Name = 2;
+  string Description = 3;
+  double BasePrice = 4;
+  string ImageUrl = 5;
 }
 message CreatePizzaSpecialResponse {
-  int32 id = 1;
+  int32 Id = 1;
 }
 
 message ReadPizzaSpecialRequest {
-  int32 id = 1;
+  int32 Id = 1;
   google.protobuf.FieldMask data_that_needed = 2;
 }
 message ReadPizzaSpecialResponse {
-  int32 id = 1;
-  string name = 2;
-  string description = 3;
-  double baseprice = 4;
-  string imageurl = 5;
-  bool vegetarian = 6;
-  bool vegan = 7;
+  int32 Id = 1;
+  string Name = 2;
+  string Description = 3;
+  double BasePrice = 4;
+  string ImageUrl = 5;
 }
 
 message GetAllRequest {}
@@ -71,21 +67,19 @@ message GetAllResponse {
 }
 
 message UpdatePizzaSpecialRequest {
-  int32 id = 1;
-  string name = 2;
-  string description = 3;
-  double baseprice = 4;
-  string imageurl = 5;
-  bool vegetarian = 6;
-  bool vegan = 7;
+  int32 Id = 1;
+  string Name = 2;
+  string Description = 3;
+  double BasePrice = 4;
+  string ImageUrl = 5;
 }
 message UpdatePizzaSpecialResponse {
-  int32 id = 1;
+  int32 Id = 1;
 }
 
 message DeletePizzaSpecialRequest {
-  int32 id = 1;
+  int32 Id = 1;
 }
 message DeletePizzaSpecialResponse {
-  int32 id = 1;
+  int32 Id = 1;
 }
