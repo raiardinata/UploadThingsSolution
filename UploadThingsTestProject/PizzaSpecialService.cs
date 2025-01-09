@@ -10,7 +10,7 @@ using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Infrastructure;
 using UploadThingsGrpcService.Infrastructure.Data;
-using UploadThingsGrpcService.ProductProto;
+using UploadThingsGrpcService.PizzaSpecialProto;
 
 namespace UploadThingsTestProject
 {
@@ -24,7 +24,7 @@ namespace UploadThingsTestProject
         // gRPC setup
         private MSSQLContext? _MSSQLContext;
         private IConfiguration? _configuration;
-        private ProductServices? _productService;
+        private PizzaSpecialServices? _pizzaSpecialService;
         private UnitofWork? _UnitofWorkRepository;
         private DbContextOptions<MSSQLContext>? _options;
 
@@ -46,14 +46,14 @@ namespace UploadThingsTestProject
                 .Options;
             _MSSQLContext = new MSSQLContext(_options);
 
-            // Initialize Unit of Work and Product Services
+            // Initialize Unit of Work and PizzaSpecial Services
             _UnitofWorkRepository = new UnitofWork(_MSSQLContext);
-            _productService = new ProductServices(_UnitofWorkRepository);
+            _pizzaSpecialService = new PizzaSpecialServices(_UnitofWorkRepository);
         }
 
-        public class ProductResponse
+        public class PizzaSpecialResponse
         {
-            public List<Product>? ProductData { get; set; }
+            public List<PizzaSpecial>? PizzaSpecialData { get; set; }
         }
 
         private int GetLatestIdAsync(string table)
@@ -71,101 +71,101 @@ namespace UploadThingsTestProject
 
         // RESTful Test
         [Test]
-        public async Task ReadByIDProduct_FromRESTful()
+        public async Task ReadByIDPizzaSpecial_FromRESTful()
         {
             // Make sure to check the data exist first
-            HttpResponseMessage response = await _httpClient.GetAsync("v1/Product?id=3&data_that_needed=id,productname,producttype,productprice,productimagepath");
+            HttpResponseMessage response = await _httpClient.GetAsync("v1/PizzaSpecial?id=3&data_that_needed=id,name,description,baseprice,imageurl");
             response.IsSuccessStatusCode.Should().BeTrue();
 
             string jsonResponse = await response.Content.ReadAsStringAsync();
-            User? productResponse = JsonSerializer.Deserialize<User>(jsonResponse, _jsonSerializerOptions);
+            PizzaSpecial? pizzaSpecialResponse = JsonSerializer.Deserialize<PizzaSpecial>(jsonResponse, _jsonSerializerOptions);
 
-            productResponse.Should().NotBeNull();
-            productResponse?.Id.Should().NotBe(null);
+            pizzaSpecialResponse.Should().NotBeNull();
+            pizzaSpecialResponse?.Id.Should().NotBe(null);
         }
 
         [Test]
-        public async Task ReadAllProduct_FromRESTful()
+        public async Task ReadAllPizzaSpecial_FromRESTful()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("v1/Product/GetAllList");
+            HttpResponseMessage response = await _httpClient.GetAsync("v1/PizzaSpecial/GetAllList");
             response.IsSuccessStatusCode.Should().BeTrue();
 
             string jsonResponse = await response.Content.ReadAsStringAsync();
-            ProductResponse? productResponse = JsonSerializer.Deserialize<ProductResponse>(jsonResponse, _jsonSerializerOptions);
+            PizzaSpecialResponse? pizzaSpecialResponse = JsonSerializer.Deserialize<PizzaSpecialResponse>(jsonResponse, _jsonSerializerOptions);
 
-            productResponse.Should().NotBeNull();
-            productResponse?.ProductData.Should().NotBeNull();
-            productResponse?.ProductData.Should().HaveCountGreaterThan(0);
+            pizzaSpecialResponse.Should().NotBeNull();
+            pizzaSpecialResponse?.PizzaSpecialData.Should().NotBeNull();
+            pizzaSpecialResponse?.PizzaSpecialData.Should().HaveCountGreaterThan(0);
         }
 
         [Test]
-        public async Task CreateProduct_and_DeleteProduct_FromRESTful()
+        public async Task CreatePizzaSpecial_and_DeletePizzaSpecial_FromRESTful()
         {
-            Product content = new()
+            PizzaSpecial content = new()
             {
-                ProductImagePath = "Ut",
-                ProductName = "ex esse cupidatat commodo",
-                ProductPrice = 1,
-                ProductType = "quis esse in"
+                ImageUrl = "Ut",
+                Name = "ex esse cupidatat commodo",
+                BasePrice = 1,
+                Description = "quis esse in"
             };
 
-            HttpResponseMessage createResponse = await _httpClient.PostAsJsonAsync("v1/Product", content);
+            HttpResponseMessage createResponse = await _httpClient.PostAsJsonAsync("v1/PizzaSpecial", content);
             createResponse.IsSuccessStatusCode.Should().BeTrue();
 
             string jsonResponse = await createResponse.Content.ReadAsStringAsync();
-            Product? productResponse = JsonSerializer.Deserialize<Product>(jsonResponse, _jsonSerializerOptions);
+            PizzaSpecial? pizzaSpecialResponse = JsonSerializer.Deserialize<PizzaSpecial>(jsonResponse, _jsonSerializerOptions);
 
-            productResponse.Should().NotBeNull();
+            pizzaSpecialResponse.Should().NotBeNull();
 
-            HttpResponseMessage deleteResponse = await _httpClient.DeleteAsync($"v1/Product/{productResponse?.Id}");
+            HttpResponseMessage deleteResponse = await _httpClient.DeleteAsync($"v1/PizzaSpecial/{pizzaSpecialResponse?.Id}");
             deleteResponse.IsSuccessStatusCode.Should().BeTrue();
         }
 
         [Test]
-        public async Task UpdateProduct_FromRESTful()
+        public async Task UpdatePizzaSpecial_FromRESTful()
         {
-            Product? content = new()
+            PizzaSpecial? content = new()
             {
                 Id = 47,
-                ProductImagePath = "updateto Ut",
-                ProductName = "updateto ex esse cupidatat commodo",
-                ProductPrice = 1,
-                ProductType = "updateto quis esse in"
+                ImageUrl = "updateto Ut",
+                Name = "updateto ex esse cupidatat commodo",
+                BasePrice = 1,
+                Description = "updateto quis esse in"
             };
 
-            HttpResponseMessage updateResponse = await _httpClient.PutAsJsonAsync("v1/Product", content);
+            HttpResponseMessage updateResponse = await _httpClient.PutAsJsonAsync("v1/PizzaSpecial", content);
             updateResponse.IsSuccessStatusCode.Should().BeTrue();
         }
 
         // gRpc Test
         [Test]
-        public async Task ReadProductByID_ShouldReturnProductData()
+        public async Task ReadPizzaSpecialByID_ShouldReturnPizzaSpecialData()
         {
-            // Arrange create product
-            int id = (int)GetLatestIdAsync("Product");
-            CreateProductRequest requestCreateProduct = new() { ProductName = "test Read Create Product", ProductType = "test_type", ProductPrice = 1.1234, ProductImagePath = "Images/001" };
+            // Arrange create pizzaSpecial
+            int id = GetLatestIdAsync("PizzaSpecial");
+            CreatePizzaSpecialRequest requestCreatePizzaSpecial = new() { Name = "test Read Create PizzaSpecial", Description = "test_type", Baseprice = 1.1234, Imageurl = "Images/001" };
 
-            // Arrange Read Product
-            ReadProductRequest requestReadProduct = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "productname", "producttype", "productprice", "productimagepath" } } };
-            ReadProductResponse responseReadProductExpected = new() { Id = id, ProductName = "test Read Create Product", ProductType = "test_type", ProductPrice = 1.1234, ProductImagePath = "Images/001" };
+            // Arrange Read PizzaSpecial
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "producttype", "productprice", "productimagepath" } } };
+            ReadPizzaSpecialResponse responseReadPizzaSpecialExpected = new() { Id = id, Name = "test Read Create PizzaSpecial", Description = "test_type", Baseprice = 1.1234, Imageurl = "Images/001" };
 
-            if (_productService == null)
+            if (_pizzaSpecialService == null)
             {
-                Assert.Fail("_productService is null.");
+                Assert.Fail("_pizzaSpecialService is null.");
             }
             else
             {
-                // Act 1 Create Product
-                await _productService.CreateProduct(requestCreateProduct, It.IsAny<ServerCallContext>());
+                // Act 1 Create PizzaSpecial
+                await _pizzaSpecialService.CreatePizzaSpecial(requestCreatePizzaSpecial, It.IsAny<ServerCallContext>());
 
-                // Act 2 Read Product
-                ReadProductResponse responseReadProduct = await _productService.ReadProduct(requestReadProduct, It.IsAny<ServerCallContext>());
+                // Act 2 Read PizzaSpecial
+                ReadPizzaSpecialResponse responseReadPizzaSpecial = await _pizzaSpecialService.ReadPizzaSpecial(requestReadPizzaSpecial, It.IsAny<ServerCallContext>());
 
                 // Assert
-                Assert.That(responseReadProduct, Is.EqualTo(responseReadProductExpected));
+                Assert.That(responseReadPizzaSpecial, Is.EqualTo(responseReadPizzaSpecialExpected));
 
                 // Delete created data to cleanup
-                DeleteProductResponse numberId = await _productService.DeleteProduct(new DeleteProductRequest() { Id = id }, It.IsAny<ServerCallContext>());
+                DeletePizzaSpecialResponse numberId = await _pizzaSpecialService.DeletePizzaSpecial(new DeletePizzaSpecialRequest() { Id = id }, It.IsAny<ServerCallContext>());
 
                 // Assert Delete function
                 Assert.That(id, Is.EqualTo(numberId.Id));
@@ -175,17 +175,17 @@ namespace UploadThingsTestProject
         }
 
         [Test]
-        public async Task ReadAllProduct_ShouldReturnAllProductData()
+        public async Task ReadAllPizzaSpecial_ShouldReturnAllPizzaSpecialData()
         {
 
-            if (_productService == null)
+            if (_pizzaSpecialService == null)
             {
-                Assert.Fail("_productService is null.");
+                Assert.Fail("_pizzaSpecialService is null.");
             }
             else
             {
                 // Act
-                GetAllResponse response = await _productService.ListProduct(new GetAllRequest(), It.IsAny<ServerCallContext>());
+                GetAllResponse response = await _pizzaSpecialService.ListPizzaSpecial(new GetAllRequest(), It.IsAny<ServerCallContext>());
 
                 // Assert
                 Assert.That(response, Is.Not.Null);
@@ -193,60 +193,60 @@ namespace UploadThingsTestProject
         }
 
         [Test]
-        public async Task CreateProductandDeleteProduct_ShouldCreateProducttoDatabaseThenDeleteProduct()
+        public async Task CreatePizzaSpecialandDeletePizzaSpecial_ShouldCreatePizzaSpecialtoDatabaseThenDeletePizzaSpecial()
         {
             // Arrange
-            int id = GetLatestIdAsync("Product");
-            CreateProductRequest requestCreateProduct = new() { ProductName = "test Create Product Nunit", ProductType = "test_type", ProductPrice = 1.1234, ProductImagePath = "Images/001" };
+            int id = GetLatestIdAsync("PizzaSpecial");
+            CreatePizzaSpecialRequest requestCreatePizzaSpecial = new() { Name = "test Create PizzaSpecial Nunit", Description = "test_type", Baseprice = 1.1234, Imageurl = "Images/001" };
 
-            ReadProductRequest requestReadProduct = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "productname", "producttype", "productprice", "productimagepath" } } }; // The Id will depend of the latest Product Data in the Database.
-            ReadProductResponse responseExpected = new() { Id = id, ProductName = "test Create Product Nunit", ProductType = "test_type", ProductPrice = 1.1234, ProductImagePath = "Images/001" };
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "producttype", "productprice", "productimagepath" } } }; // The Id will depend of the latest PizzaSpecial Data in the Database.
+            ReadPizzaSpecialResponse responseExpected = new() { Id = id, Name = "test Create PizzaSpecial Nunit", Description = "test_type", Baseprice = 1.1234, Imageurl = "Images/001" };
 
-            if (_productService == null)
+            if (_pizzaSpecialService == null)
             {
-                Assert.Fail("_productService is null.");
+                Assert.Fail("_pizzaSpecialService is null.");
             }
             else
             {
 
-                // Act 1 Create Product Then Read It
-                await _productService.CreateProduct(requestCreateProduct, It.IsAny<ServerCallContext>());
-                ReadProductResponse responseReadProduct = await _productService.ReadProduct(requestReadProduct, It.IsAny<ServerCallContext>());
-                // Assert Act 1, Product Should be in The Database
-                Assert.That(responseReadProduct, Is.EqualTo(responseExpected));
+                // Act 1 Create PizzaSpecial Then Read It
+                await _pizzaSpecialService.CreatePizzaSpecial(requestCreatePizzaSpecial, It.IsAny<ServerCallContext>());
+                ReadPizzaSpecialResponse responseReadPizzaSpecial = await _pizzaSpecialService.ReadPizzaSpecial(requestReadPizzaSpecial, It.IsAny<ServerCallContext>());
+                // Assert Act 1, PizzaSpecial Should be in The Database
+                Assert.That(responseReadPizzaSpecial, Is.EqualTo(responseExpected));
 
-                // Act 2 Delete Product
-                DeleteProductResponse responseDelete = await _productService.DeleteProduct(new DeleteProductRequest { Id = id }, It.IsAny<ServerCallContext>());
+                // Act 2 Delete PizzaSpecial
+                DeletePizzaSpecialResponse responseDelete = await _pizzaSpecialService.DeletePizzaSpecial(new DeletePizzaSpecialRequest { Id = id }, It.IsAny<ServerCallContext>());
                 // Assert Act 2
-                Assert.That(responseDelete, Is.EqualTo(new DeleteProductResponse { Id = id }));
+                Assert.That(responseDelete, Is.EqualTo(new DeletePizzaSpecialResponse { Id = id }));
             }
         }
 
         [Test]
-        public async Task UpdateProduct_ShouldUpdateProductData()
+        public async Task UpdatePizzaSpecial_ShouldUpdatePizzaSpecialData()
         {
-            // Arrange Update Product
+            // Arrange Update PizzaSpecial
             int id = 3;
-            UpdateProductRequest requestUpdateProduct = new() { Id = id, ProductName = "Update Product Test 1", ProductType = "test_type", ProductPrice = 2, ProductImagePath = "Images/002" };
+            UpdatePizzaSpecialRequest requestUpdatePizzaSpecial = new() { Id = id, Name = "Update PizzaSpecial Test 1", Description = "test_type", Baseprice = 2, Imageurl = "Images/002" };
 
-            // Arrange Read Product
-            ReadProductRequest requestReadProduct = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "productname", "producttype", "productprice", "productimagepath" } } };
-            ReadProductResponse responseExpected = new() { Id = id, ProductName = "Update Product Test 1", ProductType = "test_type", ProductPrice = 2, ProductImagePath = "Images/002" };
+            // Arrange Read PizzaSpecial
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "producttype", "productprice", "productimagepath" } } };
+            ReadPizzaSpecialResponse responseExpected = new() { Id = id, Name = "Update PizzaSpecial Test 1", Description = "test_type", Baseprice = 2, Imageurl = "Images/002" };
 
-            if (_productService == null)
+            if (_pizzaSpecialService == null)
             {
-                Assert.Fail("_productService is null.");
+                Assert.Fail("_pizzaSpecialService is null.");
             }
             else
             {
 
-                // Act Update Product
-                await _productService.UpdateProduct(requestUpdateProduct, It.IsAny<ServerCallContext>());
-                // Act Read Product
-                ReadProductResponse responseReadProduct = await _productService.ReadProduct(requestReadProduct, It.IsAny<ServerCallContext>());
+                // Act Update PizzaSpecial
+                await _pizzaSpecialService.UpdatePizzaSpecial(requestUpdatePizzaSpecial, It.IsAny<ServerCallContext>());
+                // Act Read PizzaSpecial
+                ReadPizzaSpecialResponse responseReadPizzaSpecial = await _pizzaSpecialService.ReadPizzaSpecial(requestReadPizzaSpecial, It.IsAny<ServerCallContext>());
 
                 // Assert
-                Assert.That(responseReadProduct, Is.EqualTo(responseExpected));
+                Assert.That(responseReadPizzaSpecial, Is.EqualTo(responseExpected));
             }
         }
 
