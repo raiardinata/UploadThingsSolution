@@ -63,7 +63,7 @@ message ReadPizzaSpecialResponse {
 
 message GetAllRequest {}
 message GetAllResponse {
-  repeated ReadPizzaSpecialResponse pizza_entities_data = 1;
+  repeated ReadPizzaSpecialResponse Pizza_Special_Data = 1;
 }
 
 message UpdatePizzaSpecialRequest {

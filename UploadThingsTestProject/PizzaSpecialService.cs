@@ -74,8 +74,9 @@ namespace UploadThingsTestProject
         public async Task ReadByIDPizzaSpecial_FromRESTful()
         {
             // Make sure to check the data exist first
-            HttpResponseMessage response = await _httpClient.GetAsync("v1/PizzaSpecial?id=3&data_that_needed=id,name,Description,BasePrice,ImageUrl");
+            HttpResponseMessage response = await _httpClient.GetAsync("v1/PizzaSpecial?Id=1&data_that_needed=Id,Name,Description,BasePrice,ImageUrl");
             response.IsSuccessStatusCode.Should().BeTrue();
+
 
             string jsonResponse = await response.Content.ReadAsStringAsync();
             PizzaSpecial? pizzaSpecialResponse = JsonSerializer.Deserialize<PizzaSpecial>(jsonResponse, _jsonSerializerOptions);

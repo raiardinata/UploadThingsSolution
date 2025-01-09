@@ -92,7 +92,7 @@ namespace UploadThingsGrpcService.Application.Services
             IEnumerable<PizzaSpecial> pizzaSpecialItem = await _unitofWorkRepository.PizzaSpecialRepository.GetAllAsync();
             foreach (PizzaSpecial? pizzaSpecial in pizzaSpecialItem)
             {
-                response.PizzaEntitiesData.Add(new ReadPizzaSpecialResponse
+                response.PizzaSpecialData.Add(new ReadPizzaSpecialResponse
                 {
                     Id = pizzaSpecial.Id,
                     Name = pizzaSpecial?.Name,
