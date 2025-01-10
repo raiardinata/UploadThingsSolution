@@ -1,11 +1,11 @@
-using System.Net.Http.Json;
-using System.Text.Json;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System.Text;
+using System.Text.Json;
 using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Infrastructure;
@@ -105,13 +105,20 @@ namespace UploadThingsTestProject
         {
             PizzaSpecial content = new()
             {
-                ImageUrl = "Ut",
                 Name = "ex esse cupidatat commodo",
+                Description = "quis esse in",
                 BasePrice = 1,
-                Description = "quis esse in"
+                ImageUrl = "Ut"
             };
 
-            HttpResponseMessage createResponse = await _httpClient.PostAsJsonAsync("v1/PizzaSpecial", content);
+            // Convert the object to JSON
+            string jsonContent = JsonSerializer.Serialize(content);
+
+            // Create the StringContent with JSON payload
+            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+
+            HttpResponseMessage createResponse = await _httpClient.PostAsync("v1/PizzaSpecial", httpContent);
             createResponse.IsSuccessStatusCode.Should().BeTrue();
 
             string jsonResponse = await createResponse.Content.ReadAsStringAsync();
@@ -129,13 +136,19 @@ namespace UploadThingsTestProject
             PizzaSpecial? content = new()
             {
                 Id = 1,
-                ImageUrl = "updateto Ut",
                 Name = "updateto ex esse cupidatat commodo",
+                Description = "updateto quis esse in",
                 BasePrice = 1,
-                Description = "updateto quis esse in"
+                ImageUrl = "updateto Ut",
             };
 
-            HttpResponseMessage updateResponse = await _httpClient.PutAsJsonAsync("v1/PizzaSpecial", content);
+            // Convert the object to JSON
+            string jsonContent = JsonSerializer.Serialize(content);
+
+            // Create the StringContent with JSON payload
+            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage updateResponse = await _httpClient.PutAsync("v1/PizzaSpecial", httpContent);
             updateResponse.IsSuccessStatusCode.Should().BeTrue();
         }
 
@@ -148,7 +161,7 @@ namespace UploadThingsTestProject
             CreatePizzaSpecialRequest requestCreatePizzaSpecial = new() { Name = "test Read Create PizzaSpecial", Description = "test_type", BasePrice = 1.1234, ImageUrl = "Images/001" };
 
             // Arrange Read PizzaSpecial
-            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "Description", "BasePrice", "ImageUrl" } } };
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "Id", "Name", "Description", "BasePrice", "ImageUrl" } } };
             ReadPizzaSpecialResponse responseReadPizzaSpecialExpected = new() { Id = id, Name = "test Read Create PizzaSpecial", Description = "test_type", BasePrice = 1.1234, ImageUrl = "Images/001" };
 
             if (_pizzaSpecialService == null)
@@ -232,7 +245,7 @@ namespace UploadThingsTestProject
             UpdatePizzaSpecialRequest requestUpdatePizzaSpecial = new() { Id = id, Name = "Update PizzaSpecial Test 1", Description = "test_type", BasePrice = 2, ImageUrl = "Images/002" };
 
             // Arrange Read PizzaSpecial
-            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "Id", "pizzaSpecialname", "Description", "BasePrice", "ImageUrl" } } };
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "Id", "Name", "Description", "BasePrice", "ImageUrl" } } };
             ReadPizzaSpecialResponse responseExpected = new() { Id = id, Name = "Update PizzaSpecial Test 1", Description = "test_type", BasePrice = 2, ImageUrl = "Images/002" };
 
             if (_pizzaSpecialService == null)

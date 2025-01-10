@@ -39,11 +39,10 @@ service PizzaSpecialService {
 }
 
 message CreatePizzaSpecialRequest {
-  int32 Id = 1;
-  string Name = 2;
-  string Description = 3;
-  double BasePrice = 4;
-  string ImageUrl = 5;
+  string Name = 1;
+  string Description = 2;
+  double BasePrice = 3;
+  string ImageUrl = 4;
 }
 message CreatePizzaSpecialResponse {
   int32 Id = 1;

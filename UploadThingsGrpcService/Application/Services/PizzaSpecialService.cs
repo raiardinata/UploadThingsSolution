@@ -15,7 +15,7 @@ namespace UploadThingsGrpcService.Application.Services
             ReadPizzaSpecialResponse selectedData = new();
             foreach (string? field in fieldMask.Paths)
             {
-                switch (field)
+                switch (field.ToLower())
                 {
                     case "id":
                         selectedData.Id = fullData.Id;
@@ -23,13 +23,13 @@ namespace UploadThingsGrpcService.Application.Services
                     case "name":
                         selectedData.Name = fullData.Name;
                         break;
-                    case "city":
+                    case "description":
                         selectedData.Description = fullData.Description;
                         break;
-                    case "state":
+                    case "baseprice":
                         selectedData.BasePrice = fullData.BasePrice;
                         break;
-                    case "photo":
+                    case "imageurl":
                         selectedData.ImageUrl = fullData.ImageUrl;
                         break;
                     default:
