@@ -81,6 +81,7 @@ namespace UploadThingsTestProject
             string jsonResponse = await response.Content.ReadAsStringAsync();
             PizzaSpecial? pizzaSpecialResponse = JsonSerializer.Deserialize<PizzaSpecial>(jsonResponse, _jsonSerializerOptions);
 
+            Console.WriteLine("Tetoot");
             pizzaSpecialResponse.Should().NotBeNull();
             pizzaSpecialResponse?.Id.Should().NotBe(null);
         }
@@ -127,7 +128,7 @@ namespace UploadThingsTestProject
         {
             PizzaSpecial? content = new()
             {
-                Id = 47,
+                Id = 1,
                 ImageUrl = "updateto Ut",
                 Name = "updateto ex esse cupidatat commodo",
                 BasePrice = 1,
@@ -147,7 +148,7 @@ namespace UploadThingsTestProject
             CreatePizzaSpecialRequest requestCreatePizzaSpecial = new() { Name = "test Read Create PizzaSpecial", Description = "test_type", BasePrice = 1.1234, ImageUrl = "Images/001" };
 
             // Arrange Read PizzaSpecial
-            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "producttype", "productprice", "productimagepath" } } };
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "Description", "BasePrice", "ImageUrl" } } };
             ReadPizzaSpecialResponse responseReadPizzaSpecialExpected = new() { Id = id, Name = "test Read Create PizzaSpecial", Description = "test_type", BasePrice = 1.1234, ImageUrl = "Images/001" };
 
             if (_pizzaSpecialService == null)
@@ -200,7 +201,7 @@ namespace UploadThingsTestProject
             int id = GetLatestIdAsync("PizzaSpecial");
             CreatePizzaSpecialRequest requestCreatePizzaSpecial = new() { Name = "test Create PizzaSpecial Nunit", Description = "test_type", BasePrice = 1.1234, ImageUrl = "Images/001" };
 
-            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "producttype", "productprice", "productimagepath" } } }; // The Id will depend of the latest PizzaSpecial Data in the Database.
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "Id", "Name", "Description", "BasePrice", "ImageUrl" } } }; // The Id will depend of the latest PizzaSpecial Data in the Database.
             ReadPizzaSpecialResponse responseExpected = new() { Id = id, Name = "test Create PizzaSpecial Nunit", Description = "test_type", BasePrice = 1.1234, ImageUrl = "Images/001" };
 
             if (_pizzaSpecialService == null)
@@ -231,7 +232,7 @@ namespace UploadThingsTestProject
             UpdatePizzaSpecialRequest requestUpdatePizzaSpecial = new() { Id = id, Name = "Update PizzaSpecial Test 1", Description = "test_type", BasePrice = 2, ImageUrl = "Images/002" };
 
             // Arrange Read PizzaSpecial
-            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "id", "pizzaSpecialname", "producttype", "productprice", "productimagepath" } } };
+            ReadPizzaSpecialRequest requestReadPizzaSpecial = new() { Id = id, DataThatNeeded = new FieldMask { Paths = { "Id", "pizzaSpecialname", "Description", "BasePrice", "ImageUrl" } } };
             ReadPizzaSpecialResponse responseExpected = new() { Id = id, Name = "Update PizzaSpecial Test 1", Description = "test_type", BasePrice = 2, ImageUrl = "Images/002" };
 
             if (_pizzaSpecialService == null)
