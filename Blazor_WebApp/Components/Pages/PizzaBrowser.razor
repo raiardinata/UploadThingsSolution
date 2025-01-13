@@ -1,9 +1,38 @@
-﻿@page "/pizzabrowser"
+﻿@using Blazor_WebApp.Data
+@using Blazor_WebApp.Application.Services
 
-<h1>Welcome to Blazing Pizza</h1>
+@page "/pizzabrowser"
+@inject PizzaService PizzaService
 
-<p>@welcomeMessage</p>
+<div class="main">
+    <h1>Welcome to Blazing Pizza</h1>
+
+    <p>@welcomeMessage</p>
+
+    <ul class="piz">
+        @if (pizzas != null)
+        {
+            @foreach (var pizza in pizzas)
+            {
+                <li style="background-image: url('@pizza.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@pizza.Name</span>
+                        @pizza.Description
+                        <span class="price">@pizza.GetFormattedBasePrice()</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
 
 @code {
+	private IReadOnlyList<PizzaEntities>? pizzas;
 	private string welcomeMessage = "However you like your pizzas, we can deliver them fast!";
+
+	protected override async Task OnInitializedAsync()
+	{
+		pizzas = await PizzaService.GetPizzaAsync();
+	}
 }
