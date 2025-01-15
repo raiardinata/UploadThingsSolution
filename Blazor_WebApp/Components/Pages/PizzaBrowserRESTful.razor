@@ -1,0 +1,42 @@
+﻿@page "/pizzabrowserrestful"
+
+@using Blazor_WebApp.Application.Services
+@using UploadThingsGrpcService.PizzaSpecialProto
+@inject PizzaServiceClient PizzaServiceClient
+
+<head>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+
+<div class="main">
+    <h1>Welcome to Blazing Pizza</h1>
+
+    <p>@welcomeMessage</p>
+
+    <ul class="pizza-cards">
+        @if (pizzaSpecials != null)
+        {
+            @foreach (var pizza in pizzaSpecials)
+            {
+                <li style="background-image: url('@pizza.ImageUrl')">
+                    <div class="pizza-info">
+                        <span class="title">@pizza.Name</span>
+                        @pizza.Description
+                        <span class="price">@pizza.BasePrice.ToString("0.00")</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+@code {
+    private IReadOnlyList<ReadPizzaSpecialResponse>? pizzaSpecials;
+
+    private string welcomeMessage = "However you like your pizzas, we can deliver them fast!";
+
+    protected override async Task OnInitializedAsync()
+    {
+        pizzaSpecials = await PizzaServiceClient.GetPizzaRESTfulAsync();
+    }
+}

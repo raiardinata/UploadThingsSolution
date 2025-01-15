@@ -52,7 +52,7 @@
     <Protobuf Include="Presentation\Protos\todo.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\user.proto" GrpcServices="Server" />
     <Protobuf Include="Presentation\Protos\housing.proto" GrpcServices="Server" />
-    <Protobuf Include="Presentation\Protos\pizza.proto" GrpcServices="Server" />
+    <Protobuf Include="Presentation\Protos\pizza.proto" GrpcServices="Both" />
   </ItemGroup>
 
 </Project>
