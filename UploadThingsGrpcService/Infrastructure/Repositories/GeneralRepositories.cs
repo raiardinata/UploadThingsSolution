@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Domain.Interfaces;
 using UploadThingsGrpcService.Infrastructure.Data;
 
@@ -13,50 +14,50 @@ namespace UploadThingsGrpcService.Infrastructure.Repositories
         public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
         public async Task<T?> GetByIdAsync(int id) => await _dbSet.FirstOrDefaultAsync(entity => entity.Id == id);
 
-        public async Task<Exception> AddAsync(T entity)
+        public async Task<OperationResult> AddAsync(T entity)
         {
             try
             {
                 await _dbSet.AddAsync(entity);
                 await _context.SaveChangesAsync();
-                return new Exception(null);
+                return new OperationResult { IsSuccess = true };
             }
             catch (Exception ex)
             {
-                return ex;
+                return new OperationResult { IsSuccess = false, ErrorMessage = ex.Message };
             }
         }
 
-        public async Task<Exception> UpdateAsync(T entity)
+        public async Task<OperationResult> UpdateAsync(T entity)
         {
             try
             {
                 _dbSet.Update(entity);
                 await _context.SaveChangesAsync();
-                return new Exception(null);
+                return new OperationResult { IsSuccess = true };
             }
             catch (Exception ex)
             {
-                return ex;
+                return new OperationResult { IsSuccess = false, ErrorMessage = ex.Message };
             }
         }
 
-        public async Task<Exception> DeleteAsync(int id)
+        public async Task<OperationResult> DeleteAsync(int id)
         {
             try
             {
-                var entity = await GetByIdAsync(id);
+                T? entity = await GetByIdAsync(id);
                 if (entity == null)
                 {
-                    return new Exception($"Failed to get {_dbSet.GetType()} data with Id {id}.");
+                    return new OperationResult { IsSuccess = true, ErrorMessage = $"Failed to get {_dbSet.GetType()} data with Id {id}." };
                 }
                 _dbSet.Remove(entity);
                 await _context.SaveChangesAsync();
-                return new Exception(null);
+                return new OperationResult { IsSuccess = true };
             }
             catch (Exception ex)
             {
-                return ex;
+                return new OperationResult { IsSuccess = false, ErrorMessage = ex.Message };
             }
         }
     }

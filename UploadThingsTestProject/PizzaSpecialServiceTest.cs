@@ -1,11 +1,11 @@
+using System.Text;
+using System.Text.Json;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using System.Text;
-using System.Text.Json;
 using UploadThingsGrpcService.Application.Services;
 using UploadThingsGrpcService.Domain.Entities;
 using UploadThingsGrpcService.Infrastructure;
@@ -146,7 +146,7 @@ namespace UploadThingsTestProject
             string jsonContent = JsonSerializer.Serialize(content);
 
             // Create the StringContent with JSON payload
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            StringContent httpContent = new(jsonContent, Encoding.UTF8, "application/json");
 
             HttpResponseMessage updateResponse = await _httpClient.PutAsync("v1/PizzaSpecial", httpContent);
             updateResponse.IsSuccessStatusCode.Should().BeTrue();

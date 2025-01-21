@@ -61,7 +61,11 @@ namespace UploadThingsGrpcService.Application.Services
                 ProductImagePath = request.ProductImagePath,
                 ProductPrice = (decimal)request.ProductPrice
             };
-            await _unitofWorkRepository.ProductRepository.AddAsync(product);
+
+            OperationResult operationResult = await _unitofWorkRepository.ProductRepository.AddAsync(product);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to create the data. Detail : {operationResult.ErrorMessage}"));
+
             return await Task.FromResult(new CreateProductResponse { Id = product.Id });
         }
 
@@ -83,14 +87,7 @@ namespace UploadThingsGrpcService.Application.Services
                 };
                 ReadProductResponse selectedData = ApplyFieldMask(readfulldata, request.DataThatNeeded);
 
-                return await Task.FromResult(new ReadProductResponse
-                {
-                    Id = selectedData.Id,
-                    ProductName = selectedData?.ProductName,
-                    ProductImagePath = selectedData?.ProductImagePath,
-                    ProductType = selectedData?.ProductType,
-                    ProductPrice = selectedData?.ProductPrice ?? 0,
-                });
+                return await Task.FromResult(selectedData);
             }
 
             throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
@@ -126,7 +123,10 @@ namespace UploadThingsGrpcService.Application.Services
             productItem.ProductType = request.ProductType;
             productItem.ProductPrice = (decimal)request.ProductPrice;
 
-            await _unitofWorkRepository.ProductRepository.UpdateAsync(productItem);
+            OperationResult operationResult = await _unitofWorkRepository.ProductRepository.UpdateAsync(productItem);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to update the data. Detail : {operationResult.ErrorMessage}"));
+
             return await Task.FromResult(new UpdateProductResponse { Id = request.Id });
         }
 
@@ -137,7 +137,9 @@ namespace UploadThingsGrpcService.Application.Services
 
             Product productItem = await _unitofWorkRepository.ProductRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
-            await _unitofWorkRepository.ProductRepository.DeleteAsync(productItem.Id);
+            OperationResult operationResult = await _unitofWorkRepository.ProductRepository.DeleteAsync(productItem.Id);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to update the data. Detail : {operationResult.ErrorMessage}"));
 
             return await Task.FromResult(new DeleteProductResponse { Id = request.Id });
         }

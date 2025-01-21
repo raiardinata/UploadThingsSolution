@@ -15,7 +15,7 @@ namespace UploadThingsGrpcService.Application.Services
             ReadPizzaSpecialResponse selectedData = new();
             foreach (string? field in fieldMask.Paths)
             {
-                switch (field.ToLower())
+                switch (field.ToLower(System.Globalization.CultureInfo.CurrentCulture))
                 {
                     case "id":
                         selectedData.Id = fullData.Id;
@@ -51,7 +51,11 @@ namespace UploadThingsGrpcService.Application.Services
                 Description = request.Description,
                 ImageUrl = request.ImageUrl,
             };
-            await _unitofWorkRepository.PizzaSpecialRepository.AddAsync(pizzaSpecial);
+
+            OperationResult operationResult = await _unitofWorkRepository.PizzaSpecialRepository.AddAsync(pizzaSpecial);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to add the data. Detail : {operationResult.ErrorMessage}"));
+
             return await Task.FromResult(new CreatePizzaSpecialResponse { Id = pizzaSpecial.Id });
         }
 
@@ -73,14 +77,7 @@ namespace UploadThingsGrpcService.Application.Services
                 };
                 ReadPizzaSpecialResponse selectedData = ApplyFieldMask(readfulldata, request.DataThatNeeded);
 
-                return await Task.FromResult(new ReadPizzaSpecialResponse
-                {
-                    Id = selectedData.Id,
-                    Name = selectedData?.Name,
-                    Description = selectedData?.Description,
-                    BasePrice = selectedData!.BasePrice,
-                    ImageUrl = selectedData?.ImageUrl,
-                });
+                return await Task.FromResult(selectedData);
             }
 
             throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
@@ -116,7 +113,10 @@ namespace UploadThingsGrpcService.Application.Services
             pizzaSpecialItem.Description = request.Description;
             pizzaSpecialItem.ImageUrl = request.ImageUrl;
 
-            await _unitofWorkRepository.PizzaSpecialRepository.UpdateAsync(pizzaSpecialItem);
+            OperationResult operationResult = await _unitofWorkRepository.PizzaSpecialRepository.UpdateAsync(pizzaSpecialItem);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to update the data. Detail : {operationResult.ErrorMessage}"));
+
             return await Task.FromResult(new UpdatePizzaSpecialResponse { Id = request.Id });
         }
 
@@ -127,7 +127,10 @@ namespace UploadThingsGrpcService.Application.Services
 
             PizzaSpecial pizzaSpecialItem = await _unitofWorkRepository.PizzaSpecialRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
-            await _unitofWorkRepository.PizzaSpecialRepository.DeleteAsync(pizzaSpecialItem.Id);
+
+            OperationResult operationResult = await _unitofWorkRepository.PizzaSpecialRepository.DeleteAsync(pizzaSpecialItem.Id);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to delete the data. Detail : {operationResult.ErrorMessage}"));
 
             return await Task.FromResult(new DeletePizzaSpecialResponse { Id = request.Id });
         }

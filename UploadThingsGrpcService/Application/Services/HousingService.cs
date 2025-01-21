@@ -15,7 +15,7 @@ namespace UploadThingsGrpcService.Application.Services
             ReadHousingLocationResponse selectedData = new();
             foreach (string? field in fieldMask.Paths)
             {
-                switch (field)
+                switch (field.ToLower(System.Globalization.CultureInfo.CurrentCulture))
                 {
                     case "id":
                         selectedData.Id = fullData.Id;
@@ -41,6 +41,8 @@ namespace UploadThingsGrpcService.Application.Services
                     case "laundry":
                         selectedData.Laundry = fullData.Laundry;
                         break;
+                    default:
+                        break;
                 }
             }
             return selectedData;
@@ -58,15 +60,8 @@ namespace UploadThingsGrpcService.Application.Services
 
         public override async Task<CreateHousingLocationResponse> CreateHousingLocation(CreateHousingLocationRequest request, ServerCallContext context)
         {
-            if (
-                    request.Name == string.Empty ||
-                    request.City == string.Empty ||
-                    request.State == string.Empty ||
-                    request.Photo == string.Empty
-                )
-            {
+            if (request.Name == string.Empty || request.City == string.Empty || request.State == string.Empty || request.Photo == string.Empty)
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid supply of argument object."));
-            }
 
             HousingLocation housingLocation = new()
             {
@@ -78,7 +73,10 @@ namespace UploadThingsGrpcService.Application.Services
                 Wifi = request.Wifi,
                 Laundry = request.Laundry
             };
-            await _unitofWorkRepository.HousingLocationRepository.AddAsync(housingLocation);
+            OperationResult operationResult = await _unitofWorkRepository.HousingLocationRepository.AddAsync(housingLocation);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to add the data. Detail : {operationResult.ErrorMessage}"));
+
             return await Task.FromResult(new CreateHousingLocationResponse { Id = housingLocation.Id });
         }
 
@@ -103,17 +101,7 @@ namespace UploadThingsGrpcService.Application.Services
                 };
                 ReadHousingLocationResponse selectedData = ApplyFieldMask(readfulldata, request.DataThatNeeded);
 
-                return await Task.FromResult(new ReadHousingLocationResponse
-                {
-                    Id = selectedData.Id,
-                    Name = selectedData?.Name,
-                    State = selectedData?.State,
-                    City = selectedData?.City,
-                    Photo = selectedData?.Photo,
-                    AvailableUnits = selectedData?.AvailableUnits ?? 0,
-                    Wifi = selectedData?.Wifi ?? false,
-                    Laundry = selectedData?.Laundry ?? false
-                });
+                return await Task.FromResult(selectedData);
             }
 
             throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
@@ -155,7 +143,10 @@ namespace UploadThingsGrpcService.Application.Services
             housingLocationItem.Wifi = request.Wifi;
             housingLocationItem.Laundry = request.Laundry;
 
-            await _unitofWorkRepository.HousingLocationRepository.UpdateAsync(housingLocationItem);
+            OperationResult operationResult = await _unitofWorkRepository.HousingLocationRepository.UpdateAsync(housingLocationItem);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to update the data. Detail : {operationResult.ErrorMessage}"));
+
             return await Task.FromResult(new UpdateHousingLocationResponse { Id = request.Id });
         }
 
@@ -166,7 +157,9 @@ namespace UploadThingsGrpcService.Application.Services
 
             HousingLocation housingLocationItem = await _unitofWorkRepository.HousingLocationRepository.GetByIdAsync(request.Id) ?? throw new RpcException(new Status(StatusCode.InvalidArgument, $"No task with Id {request.Id}"));
 
-            await _unitofWorkRepository.HousingLocationRepository.DeleteAsync(housingLocationItem.Id);
+            OperationResult operationResult = await _unitofWorkRepository.HousingLocationRepository.DeleteAsync(housingLocationItem.Id);
+            if (!operationResult.IsSuccess)
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"There is some error return when trying to delete the data. Detail : {operationResult.ErrorMessage}"));
 
             return await Task.FromResult(new DeleteHousingLocationResponse { Id = request.Id });
         }
