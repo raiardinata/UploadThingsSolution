@@ -83,9 +83,9 @@ namespace UploadThingsGrpcService.Application.Services
             throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
         }
 
-        public override async Task<GetAllResponse> ListPizzaSpecial(GetAllRequest request, ServerCallContext context)
+        public override async Task<GetAllPizzaSpecialResponse> ListPizzaSpecial(GetAllPizzaSpecialRequest request, ServerCallContext context)
         {
-            GetAllResponse response = new();
+            GetAllPizzaSpecialResponse response = new();
             IEnumerable<PizzaSpecial> pizzaSpecialItem = await _unitofWorkRepository.PizzaSpecialRepository.GetAllAsync();
             foreach (PizzaSpecial? pizzaSpecial in pizzaSpecialItem)
             {

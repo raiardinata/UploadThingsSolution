@@ -20,8 +20,8 @@ service PizzaSpecialService {
   }
 
   // Read List
-  rpc ListPizzaSpecial(GetAllRequest) returns (GetAllResponse) {
-    option (google.api.http) = {get: "/v1/PizzaSpecial/GetAllList"};
+  rpc ListPizzaSpecial(GetAllPizzaSpecialRequest) returns (GetAllPizzaSpecialResponse) {
+    option (google.api.http) = {get: "/v1/PizzaSpecial/GetAllPizzaSpecialList"};
   }
 
   // Update
@@ -60,8 +60,8 @@ message ReadPizzaSpecialResponse {
   string ImageUrl = 5;
 }
 
-message GetAllRequest {}
-message GetAllResponse {
+message GetAllPizzaSpecialRequest {}
+message GetAllPizzaSpecialResponse {
   repeated ReadPizzaSpecialResponse Pizza_Special_Data = 1;
 }
 

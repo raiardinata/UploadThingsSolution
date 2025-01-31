@@ -93,9 +93,9 @@ namespace UploadThingsGrpcService.Application.Services
             throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
         }
 
-        public override async Task<GetAllResponse> ListProduct(GetAllRequest request, ServerCallContext context)
+        public override async Task<GetAllProductResponse> ListProduct(GetAllProductRequest request, ServerCallContext context)
         {
-            GetAllResponse response = new();
+            GetAllProductResponse response = new();
             IEnumerable<Product> productItem = await _unitofWorkRepository.ProductRepository.GetAllAsync();
             foreach (Product? product in productItem)
             {

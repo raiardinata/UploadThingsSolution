@@ -24,9 +24,9 @@ service ToDoService {
 	}
 
 	// Read List
-	rpc ListToDo(GetAllRequest) returns (GetAllResponse) {
+	rpc ListToDo(GetAllToDoRequest) returns (GetAllToDoResponse) {
 		option (google.api.http) = {
-			get : "/v1/todo/GetAllList"
+			get : "/v1/todo/GetAllToDoList"
 		};
 	}
 
@@ -66,8 +66,8 @@ message ReadToDoResponse {
 	string to_do_status = 4;
 }
 
-message GetAllRequest{}
-message GetAllResponse{
+message GetAllToDoRequest{}
+message GetAllToDoResponse{
 	repeated ReadToDoResponse todo_data = 1;
 }
 

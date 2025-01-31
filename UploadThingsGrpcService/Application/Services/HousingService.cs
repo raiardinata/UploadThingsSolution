@@ -107,9 +107,9 @@ namespace UploadThingsGrpcService.Application.Services
             throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
         }
 
-        public override async Task<GetAllResponse> ListHousingLocation(GetAllRequest request, ServerCallContext context)
+        public override async Task<GetAllHousingResponse> ListHousingLocation(GetAllHousingRequest request, ServerCallContext context)
         {
-            GetAllResponse response = new();
+            GetAllHousingResponse response = new();
             IEnumerable<HousingLocation> housingLocationItem = await _unitofWorkRepository.HousingLocationRepository.GetAllAsync();
             foreach (HousingLocation? housingLocation in housingLocationItem)
             {

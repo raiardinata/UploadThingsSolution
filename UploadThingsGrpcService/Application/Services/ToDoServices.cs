@@ -76,9 +76,9 @@ namespace UploadThingsGrpcService.Application.Services
             throw new RpcException(new Status(StatusCode.NotFound, $"No task with id {request.Id}"));
         }
 
-        public override async Task<GetAllResponse> ListToDo(GetAllRequest request, ServerCallContext context)
+        public override async Task<GetAllToDoResponse> ListToDo(GetAllToDoRequest request, ServerCallContext context)
         {
-            var response = new GetAllResponse();
+            var response = new GetAllToDoResponse();
             var toDoItem = await _unitofWorkRepository.ToDoRepository.GetAllAsync();
             foreach (var todo in toDoItem)
             {

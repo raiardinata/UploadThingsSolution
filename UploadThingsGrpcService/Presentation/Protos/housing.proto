@@ -22,9 +22,9 @@ service HousingLocationService {
 	}
 
 	// Read List
-	rpc ListHousingLocation(GetAllRequest) returns (GetAllResponse) {
+	rpc ListHousingLocation(GetAllHousingRequest) returns (GetAllHousingResponse) {
 		option (google.api.http) = {
-			get : "/v1/HousingLocation/GetAllList"
+			get : "/v1/HousingLocation/GetAllHousingList"
 		};
 	}
 
@@ -81,8 +81,8 @@ message ReadHousingLocationResponse {
 	bool laundry = 8;
 }
 
-message GetAllRequest{}
-message GetAllResponse{
+message GetAllHousingRequest{}
+message GetAllHousingResponse{
 	repeated ReadHousingLocationResponse housing_location_data = 1;
 }
 

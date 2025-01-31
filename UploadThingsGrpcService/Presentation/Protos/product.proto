@@ -22,9 +22,9 @@ service ProductService {
 	}
 
 	// Read List
-	rpc ListProduct(GetAllRequest) returns (GetAllResponse) {
+	rpc ListProduct(GetAllProductRequest) returns (GetAllProductResponse) {
 		option (google.api.http) = {
-			get : "/v1/Product/GetAllList"
+			get : "/v1/Product/GetAllProductList"
 		};
 	}
 
@@ -74,8 +74,8 @@ message ReadProductResponse {
 	double product_price = 5;
 }
 
-message GetAllRequest{}
-message GetAllResponse{
+message GetAllProductRequest{}
+message GetAllProductResponse{
 	repeated ReadProductResponse product_data = 1;
 }
 
